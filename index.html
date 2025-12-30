@@ -1,204 +1,350 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Generador Etiquetas 8x5 | MarckBusiness</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>GENERADOR — Etiquetas 8×5 cm (PDF) | MarckBusiness</title>
 
-<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-<style>
-body{
-  margin:0;
-  font-family:system-ui,Segoe UI,Roboto,Arial;
-  background:#0b1220;
-  color:#eaf1ff;
-}
-.wrap{max-width:1200px;margin:auto;padding:20px}
-h1{margin:0;font-size:18px}
-.card{
-  background:#0f1b2f;
-  border-radius:16px;
-  padding:14px;
-  margin-bottom:14px;
-  box-shadow:0 14px 40px rgba(0,0,0,.45)
-}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-@media(max-width:900px){.grid{grid-template-columns:1fr}}
-
-input,select,button{
-  width:100%;
-  padding:12px;
-  border-radius:12px;
-  border:1px solid rgba(255,255,255,.15);
-  background:#0b1628;
-  color:#fff;
-  font-weight:700
-}
-button{
-  cursor:pointer;
-  background:linear-gradient(90deg,#2b7cff,#1dd3b0);
-  border:none
-}
-button.secondary{background:#0b1628}
-button.danger{background:#b91c1c}
-.row{display:flex;gap:10px}
-.row>*{flex:1}
-
-table{width:100%;border-collapse:collapse;margin-top:10px}
-th,td{padding:8px;border-bottom:1px solid rgba(255,255,255,.1);font-size:13px}
-th{color:#cfe4ff}
-
-.preview{
-  background:#fff;
-  color:#111;
-  padding:10px;
-  border-radius:12px;
-  width:320px
-}
-.preview .top{display:flex;justify-content:space-between;font-weight:900}
-.preview .name{font-size:15px;max-width:65%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-.preview .price{font-size:16px}
-.preview svg{width:100%;height:45px}
-.footer{text-align:center;font-size:11px;color:#aaa;margin-top:10px}
-</style>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --panel:#0f1b2f;
+      --card:#0b1628;
+      --text:#eaf1ff;
+      --muted:#9fb0c8;
+      --accent:#2b7cff;
+      --accent2:#1dd3b0;
+      --ok:#22c55e;
+      --border:rgba(255,255,255,.10);
+      --shadow:0 16px 50px rgba(0,0,0,.55);
+      --radius:18px;
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Helvetica Neue", "Noto Sans", sans-serif;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:var(--font);
+      color:var(--text);
+      background:
+        radial-gradient(900px 650px at 10% 0%, rgba(43,124,255,.18), transparent 55%),
+        radial-gradient(900px 650px at 90% 0%, rgba(29,211,176,.14), transparent 55%),
+        linear-gradient(180deg, rgba(255,255,255,.03), transparent 40%),
+        var(--bg);
+    }
+    .wrap{max-width:1200px;margin:0 auto;padding:18px}
+    .top{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logoMark{
+      width:44px;height:44px;border-radius:14px;
+      background:linear-gradient(135deg, rgba(43,124,255,.95), rgba(29,211,176,.95));
+      box-shadow:0 16px 34px rgba(43,124,255,.18);
+      position:relative;overflow:hidden;
+    }
+    .logoMark:after{content:"";position:absolute;inset:-30%;
+      background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.35), transparent 55%);
+      transform:rotate(18deg);
+    }
+    .brand h1{margin:0;font-size:18px;font-weight:1000;letter-spacing:.2px}
+    .brand p{margin:2px 0 0;color:var(--muted);font-weight:850;font-size:13px}
+    .pill{
+      display:inline-flex;gap:8px;align-items:center;
+      padding:8px 12px;border-radius:999px;
+      border:1px solid rgba(43,124,255,.35);
+      background:rgba(43,124,255,.10);
+      font-weight:1000;color:#cfe4ff;
+    }
+    .grid{display:grid;grid-template-columns: 1.05fr .95fr;gap:14px}
+    @media (max-width: 980px){.grid{grid-template-columns:1fr}}
+    .card{
+      background: rgba(15, 27, 47, .76);
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding:14px;
+      overflow:hidden;
+      position:relative;
+    }
+    .card:before{
+      content:"";position:absolute;inset:-2px;
+      background:linear-gradient(135deg, rgba(43,124,255,.18), transparent 38%, rgba(29,211,176,.12));
+      filter:blur(18px);opacity:.55;pointer-events:none;
+    }
+    .card > *{position:relative; z-index:1}
+    .card h2{margin:0 0 10px;font-size:15px;font-weight:1000}
+    .muted{color:var(--muted);font-weight:850;font-size:13px;line-height:1.35}
+    .form{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+    .field{display:flex;flex-direction:column;gap:6px;min-width:0}
+    .field.full{grid-column:1/-1}
+    label{font-size:12px;color:var(--muted);font-weight:950;letter-spacing:.2px}
+    input, select{
+      width:100%;
+      padding:12px 12px;
+      border-radius: 14px;
+      border:1px solid var(--border);
+      background: rgba(11, 22, 40, .85);
+      color:var(--text);
+      outline:none;
+      font-weight:950;
+    }
+    input:focus, select:focus{
+      border-color: rgba(43,124,255,.55);
+      box-shadow: 0 0 0 4px rgba(43,124,255,.14);
+    }
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .row .grow{flex:1;min-width:220px}
+    .btn{
+      border:none;cursor:pointer;
+      padding:11px 14px;border-radius:14px;
+      font-weight:1000;color:#fff;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      box-shadow: 0 14px 30px rgba(43,124,255,.20);
+      transition: transform .15s ease, filter .15s ease;
+    }
+    .btn:hover{transform:translateY(-1px);filter:saturate(1.05)}
+    .btn:active{transform:translateY(0)}
+    .btn.secondary{background:#0b1628;border:1px solid var(--border);box-shadow:none;color:var(--text)}
+    .btn.danger{background:linear-gradient(90deg,#ef4444,#b91c1c)}
+    .btn.small{padding:9px 12px;border-radius:12px}
+    table{width:100%;border-collapse:collapse;margin-top:12px;overflow:hidden;border-radius:14px;border:1px solid var(--border)}
+    th,td{padding:10px 10px;border-bottom:1px solid var(--border);text-align:left;font-weight:900;font-size:13px;vertical-align:top}
+    th{background:rgba(43,124,255,.12);color:#cfe4ff}
+    tr:last-child td{border-bottom:none}
+    td small{color:var(--muted);font-weight:900}
+    .previewWrap{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start;margin-top:10px}
+    .labelPreview{
+      background:#fff;color:#111;border-radius:14px;
+      padding:10px;border:1px solid rgba(0,0,0,.12);
+      width:340px;max-width:100%;
+      transform-origin:top left;
+    }
+    .labelPreview .line1{display:flex;justify-content:space-between;gap:10px;font-weight:1000}
+    .labelPreview .name{font-size:15px;max-width:68%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .labelPreview .price{font-size:16px}
+    .labelPreview .code{font-size:11px;color:#333;font-weight:900;margin-top:3px}
+    .labelPreview svg{width:100%;height:46px;margin-top:6px}
+    .footer{margin-top:14px;color:rgba(255,255,255,.65);font-weight:900;font-size:12px;text-align:center}
+    .footer b{color:#cfe4ff}
+    .toast{
+      position:fixed;left:50%;bottom:18px;transform:translateX(-50%);
+      background:rgba(17,24,39,.92);border:1px solid rgba(255,255,255,.12);
+      padding:10px 12px;border-radius:14px;color:#fff;font-weight:950;
+      box-shadow:0 20px 44px rgba(0,0,0,.45);
+      opacity:0;pointer-events:none;
+      transition:opacity .18s ease, transform .18s ease;
+    }
+    .toast.show{opacity:1; transform:translateX(-50%) translateY(-6px);}
+  </style>
 </head>
-
 <body>
-<div class="wrap">
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">
+        <div class="logoMark"></div>
+        <div>
+          <h1>GENERADOR — Etiquetas 8×5 cm (PDF)</h1>
+          <p>SKU (5 dígitos) • Nombre • Precio • PDF listo para imprimir</p>
+        </div>
+      </div>
+      <div class="pill">MarckBusiness • Offline • PDF</div>
+    </div>
 
-<h1>GENERADOR ETIQUETAS 8×5 CM</h1>
+    <div class="grid">
+      <div class="card">
+        <h2>Producto</h2>
+        <div class="form">
+          <div class="field">
+            <label>SKU (5 dígitos)</label>
+            <div class="row">
+              <input id="pCode" class="grow" inputmode="numeric" maxlength="5" placeholder="Ej: 00001"/>
+              <button class="btn small secondary" id="btnNext" type="button">Siguiente</button>
+            </div>
+          </div>
+          <div class="field">
+            <label>Precio (Q)</label>
+            <input id="pPrice" type="number" min="0" step="0.01" placeholder="Ej: 129.00"/>
+          </div>
+          <div class="field full">
+            <label>Nombre</label>
+            <input id="pName" placeholder="Ej: Camisa Oxford"/>
+          </div>
+          <div class="field full">
+            <div class="row">
+              <button class="btn" id="btnSave" type="button">Guardar</button>
+              <button class="btn secondary" id="btnClearForm" type="button">Limpiar</button>
+            </div>
+          </div>
+        </div>
 
-<div class="grid">
+        <div class="previewWrap">
+          <div>
+            <div class="muted"><b>Vista previa (80×50mm)</b></div>
+            <div class="labelPreview" id="previewBox">
+              <div class="line1">
+                <div class="name" id="pvName">—</div>
+                <div class="price" id="pvPrice">Q0.00</div>
+              </div>
+              <div class="code">SKU: <span id="pvCode">00000</span></div>
+              <svg id="pvBarcode"></svg>
+              <div style="margin-top:6px;font-size:9px;color:#444;font-weight:800;text-align:center">
+                MarckBusiness © 2025 • Todos los derechos reservados
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-<div class="card">
-<div class="row">
-<input id="pCode" placeholder="SKU 5 dígitos">
-<button id="btnNext" class="secondary">Auto</button>
-</div>
-<input id="pName" placeholder="Nombre del producto">
-<input id="pPrice" placeholder="Precio">
-<div class="row">
-<button id="btnSave">Guardar</button>
-<button id="btnClear" class="secondary">Limpiar</button>
-</div>
+      <div class="card">
+        <h2>Cola (PDF)</h2>
+        <div class="row">
+          <input id="qSearch" class="grow" placeholder="Buscar por SKU o nombre..."/>
+          <button class="btn secondary" id="btnRefresh" type="button">Refrescar</button>
+          <button class="btn danger" id="btnWipe" type="button">Borrar todo</button>
+        </div>
 
-<div class="preview">
-<div class="top">
-<div class="name" id="pvName">—</div>
-<div class="price" id="pvPrice">Q0.00</div>
-</div>
-<div>SKU: <span id="pvCode">00000</span></div>
-<svg id="pvBarcode"></svg>
-<div style="font-size:9px;text-align:center">MarckBusiness © 2025</div>
-</div>
-</div>
+        <div class="form" style="margin-top:10px">
+          <div class="field">
+            <label>Producto</label>
+            <select id="pick"></select>
+          </div>
+          <div class="field">
+            <label>Cantidad</label>
+            <input id="qty" type="number" min="1" value="1"/>
+          </div>
+          <div class="field full">
+            <div class="row">
+              <button class="btn" id="btnAddToQueue" type="button">Agregar</button>
+              <button class="btn secondary" id="btnClearQueue" type="button">Limpiar cola</button>
+              <button class="btn" id="btnPDF" type="button">Abrir PDF</button>
+            </div>
+          </div>
+        </div>
 
-<div class="card">
-<input id="qSearch" placeholder="Buscar">
-<select id="pick"></select>
-<input id="qty" type="number" value="1">
-<div class="row">
-<button id="btnAdd">Agregar</button>
-<button id="btnPDF">PDF</button>
-</div>
+        <table>
+          <thead>
+            <tr><th>SKU</th><th>Nombre</th><th>Precio</th><th>Cant.</th><th style="width:140px">Acción</th></tr>
+          </thead>
+          <tbody id="queueBody"></tbody>
+        </table>
+      </div>
+    </div>
 
-<table>
-<thead><tr><th>SKU</th><th>Nombre</th><th>Precio</th><th>Cant</th></tr></thead>
-<tbody id="queueBody"></tbody>
-</table>
-</div>
+    <div class="card" style="margin-top:14px">
+      <h2>Importar / Exportar</h2>
+      <div class="row">
+        <button class="btn secondary" id="btnExcel" type="button">Importar Excel</button>
+        <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" style="display:none"/>
+        <button class="btn secondary" id="btnExport" type="button">Exportar JSON</button>
+      </div>
+      <div class="muted" style="margin-top:8px">
+        Excel esperado: columnas <b>SKU</b>, <b>NOMBRE</b>, <b>PRECIO</b> (opcional: <b>STOCK</b>).
+      </div>
+    </div>
 
-</div>
+    <div class="footer">
+      Hecho por <b>MarckBusiness</b> — © 2025 Todos los derechos reservados.
+    </div>
+  </div>
 
-<div class="card">
-<button id="btnExcel" class="secondary">Importar Excel</button>
-<input type="file" id="excelFile" accept=".xlsx,.xls,.csv" hidden>
-</div>
-
-<div class="footer">MarckBusiness © 2025 • Todos los derechos reservados</div>
-
-</div>
+  <div class="toast" id="toast"></div>
 
 <script>
+const DB_NAME="generador_etiquetas_marckbusiness_v3";
+const DB_VER=1;
+let db;
 const $=id=>document.getElementById(id);
 const state={queue:[]};
-
-function money(n){return "Q"+(+n||0).toFixed(2)}
-function fit(doc,text,max,start=15,min=9){
-  let s=start;doc.setFontSize(s);
-  while(s>min && doc.getTextWidth(text)>max){s-=.5;doc.setFontSize(s)}
-  if(doc.getTextWidth(text)<=max)return{text,size:s};
-  doc.setFontSize(min);
-  let t=text;
-  while(t.length && doc.getTextWidth(t+"…")>max)t=t.slice(0,-1);
-  return{text:t+"…",size:min};
-}
-
-function preview(){
-  const c=$("pCode").value||"00000";
-  const n=$("pName").value||"—";
-  const p=$("pPrice").value||0;
-  $("pvCode").textContent=c;
-  $("pvName").textContent=n;
-  $("pvPrice").textContent=money(p);
-  JsBarcode($("pvBarcode"),c,{displayValue:false,height:40,width:2,margin:0});
-}
-
-["pCode","pName","pPrice"].forEach(i=>$(i).oninput=preview);
-
-$("btnNext").onclick=()=>{$("pCode").value=Math.floor(Math.random()*90000+10000);preview()}
-$("btnClear").onclick=()=>{$("pCode").value="";$("pName").value="";$("pPrice").value="";preview()}
-
-$("btnSave").onclick=()=>{
-  state.queue.push({code:$("pCode").value,name:$("pName").value,price:$("pPrice").value,qty:1});
-  renderQueue();
-}
-
-function renderQueue(){
-  $("queueBody").innerHTML="";
-  state.queue.forEach(i=>{
-    $("queueBody").innerHTML+=`<tr><td>${i.code}</td><td>${i.name}</td><td>${money(i.price)}</td><td>${i.qty}</td></tr>`;
-  });
-}
-
-$("btnPDF").onclick=()=>{
-  const {jsPDF}=window.jspdf;
-  const doc=new jsPDF({orientation:"landscape",unit:"mm",format:[80,50]});
-  state.queue.forEach((i,x)=>{
-    if(x)doc.addPage();
+function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove("show"),2000);}
+function money(n){return "Q"+(Number(n||0)).toFixed(2);}
+function norm(s){return String(s||"").trim().toLowerCase().replace(/\s+/g," ");}
+function pad5(n){return String(n).padStart(5,"0");}
+function validateCode5(code){return /^\d{5}$/.test(code);}
+function openDB(){return new Promise((resolve,reject)=>{const req=indexedDB.open(DB_NAME,DB_VER);req.onupgradeneeded=e=>{const d=e.target.result;if(!d.objectStoreNames.contains("products")){const s=d.createObjectStore("products",{keyPath:"code"});s.createIndex("name","nameKey",{unique:false});}if(!d.objectStoreNames.contains("meta"))d.createObjectStore("meta",{keyPath:"key"});};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);});}
+function tx(store,mode="readonly"){return db.transaction(store,mode).objectStore(store);}
+function idbGet(store,key){return new Promise((res,rej)=>{const r=tx(store).get(key);r.onsuccess=()=>res(r.result||null);r.onerror=()=>rej(r.error);});}
+function idbPut(store,val){return new Promise((res,rej)=>{const r=tx(store,"readwrite").put(val);r.onsuccess=()=>res(true);r.onerror=()=>rej(r.error);});}
+function idbAll(store){return new Promise((res,rej)=>{const r=tx(store).getAll();r.onsuccess=()=>res(r.result||[]);r.onerror=()=>rej(r.error);});}
+function idbClear(){return Promise.all([new Promise((res,rej)=>{const r=db.transaction("products","readwrite").objectStore("products").clear();r.onsuccess=()=>res(true);r.onerror=()=>rej(r.error);}),new Promise((res,rej)=>{const r=db.transaction("meta","readwrite").objectStore("meta").clear();r.onsuccess=()=>res(true);r.onerror=()=>rej(r.error);})]);}
+async function nextCode(){const meta=await idbGet("meta","next");const n=meta?.value?Number(meta.value):1;await idbPut("meta",{key:"next",value:n+1});return pad5(n);}
+function renderPreview(){const code=$("pCode").value.trim()||"00000";const name=$("pName").value.trim()||"—";const price=Number($("pPrice").value||0);$("pvCode").textContent=code;$("pvName").textContent=name;$("pvPrice").textContent=money(price);const svg=$("pvBarcode");svg.innerHTML="";if(validateCode5(code)){try{JsBarcode(svg,code,{format:"CODE128",displayValue:false,margin:0,height:40,width:2});}catch(e){}}}
+async function saveProduct(){const code=$("pCode").value.trim();const name=$("pName").value.trim();const price=Number($("pPrice").value);if(!validateCode5(code))return alert("SKU inválido.");if(!name)return alert("Nombre requerido.");if(isNaN(price)||price<0)return alert("Precio inválido.");const p={code,name,price:Number(price.toFixed(2)),nameKey:norm(name),updatedAt:Date.now()};await idbPut("products",p);await refreshPicker();$("pCode").value=await nextCode();$("pName").value="";$("pPrice").value="";renderPreview();toast("Guardado");}
+async function refreshPicker(){const q=norm($("qSearch").value);const all=await idbAll("products");const list=q?all.filter(p=>norm(p.code).includes(q)||(p.nameKey||"").includes(q)):all;const sel=$("pick");sel.innerHTML="";if(list.length===0){const opt=document.createElement("option");opt.value="";opt.textContent="Sin productos";sel.appendChild(opt);return;}for(const p of list.sort((a,b)=>(a.nameKey||"").localeCompare(b.nameKey||""))){const opt=document.createElement("option");opt.value=p.code;opt.textContent=`${p.code} — ${p.name} — ${money(p.price)}`;sel.appendChild(opt);}}
+function loadQueue(){try{const q=JSON.parse(localStorage.getItem("mb_label_queue_v3")||"[]");if(Array.isArray(q))state.queue=q;}catch{state.queue=[];}}
+function saveQueue(){localStorage.setItem("mb_label_queue_v3",JSON.stringify(state.queue));}
+function renderQueue(){const tb=$("queueBody");tb.innerHTML="";if(state.queue.length===0){tb.innerHTML='<tr><td colspan="5"><small style="color:rgba(255,255,255,.6);font-weight:900">Cola vacía.</small></td></tr>';return;}state.queue.forEach((it,idx)=>{const tr=document.createElement("tr");tr.innerHTML=`<td>${it.code}</td><td>${it.name}</td><td>${money(it.price)}</td><td>${it.qty}</td><td><button class="btn small secondary" data-act="edit" data-i="${idx}" type="button">Cant.</button> <button class="btn small danger" data-act="del" data-i="${idx}" type="button">X</button></td>`;tb.appendChild(tr);});}
+async function addToQueue(){const code=$("pick").value;const qty=Math.max(1,Number($("qty").value||1));if(!code)return alert("Seleccione un producto.");const p=await idbGet("products",code);if(!p)return alert("No encontrado.");state.queue.push({code:p.code,name:p.name,price:p.price,qty,updatedAt:Date.now()});saveQueue();renderQueue();toast("Agregado");}
+function clearQueue(){state.queue=[];saveQueue();renderQueue();toast("Cola limpia");}
+function barcodeDataURL(code){const canvas=document.createElement("canvas");canvas.width=520;canvas.height=140;JsBarcode(canvas,code,{format:"CODE128",displayValue:false,margin:0,height:95,width:2});return canvas.toDataURL("image/png",1.0);}
+async function openPDF(){if(state.queue.length===0)return alert("Cola vacía.");const labels=[];for(const it of state.queue)for(let i=0;i<it.qty;i++)labels.push(it);const {jsPDF}=window.jspdf;const doc=new jsPDF({orientation:"landscape",unit:"mm",format:[80,50],compress:true});const footer="MarckBusiness © 2025 • Todos los derechos reservados";
+  function fitOneLine(doc, text, maxWidth, startSize=15, minSize=9){
+    let s=startSize;
+    doc.setFontSize(s);
+    while(s>minSize && doc.getTextWidth(text)>maxWidth){ s-=0.5; doc.setFontSize(s); }
+    if(doc.getTextWidth(text)<=maxWidth) return {size:s, text};
+    // truncate with ellipsis at min size
+    doc.setFontSize(minSize);
+    const ell="…";
+    if(doc.getTextWidth(ell)>maxWidth) return {size:minSize, text:""};
+    let lo=0, hi=text.length;
+    while(lo<hi){
+      const mid=Math.ceil((lo+hi)/2);
+      const t=text.slice(0,mid)+ell;
+      if(doc.getTextWidth(t)<=maxWidth) lo=mid;
+      else hi=mid-1;
+    }
+    const out=text.slice(0,lo)+ell;
+    return {size:minSize, text:out};
+  }
+  function safeText(s){ return String(s||"").replace(/\s+/g," ").trim(); }
+  for(let i=0;i<labels.length;i++){if(i>0)doc.addPage([80,50],"landscape");const it=labels[i];
+    doc.setTextColor(10,10,10);
+    const name=safeText(it.name);
+    const priceStr=money(it.price);
     doc.setFont("helvetica","bold");
-    const price=money(i.price);
-    const f=fit(doc,i.name,55);
-    doc.setFontSize(f.size);
-    doc.text(f.text,3,9);
-    doc.setFontSize(16);
-    doc.text(price,78,9,{align:"right"});
-    doc.setFontSize(9);
-    doc.text("SKU: "+i.code,3,14);
-    const c=document.createElement("canvas");
-    JsBarcode(c,i.code,{displayValue:false,height:80,width:2});
-    doc.addImage(c.toDataURL(),"PNG",3,16,74,22);
-    doc.setFontSize(7);
-    doc.text("MarckBusiness © 2025",40,49,{align:"center"});
-  });
-  window.open(doc.output("bloburl"));
-}
 
-$("btnExcel").onclick=()=>$("excelFile").click();
-$("excelFile").onchange=async e=>{
-  const d=new Uint8Array(await e.target.files[0].arrayBuffer());
-  const wb=XLSX.read(d,{type:"array"});
-  const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
-  rows.forEach(r=>{
-    if(r.SKU && r.NOMBRE && r.PRECIO)
-      state.queue.push({code:r.SKU,name:r.NOMBRE,price:r.PRECIO,qty:1});
-  });
-  renderQueue();
-};
+    // Reserve area: left for name, right for price
+    doc.setFontSize(16);
+    const priceW = doc.getTextWidth(priceStr);
+    const gap = 3;
+    const leftX = 3;
+    const rightX = 78; // align right
+    const maxNameW = (rightX - priceW - gap) - leftX;
+
+    // Name (auto-fit, ellipsis if needed)
+    const fitted = fitOneLine(doc, name, Math.max(10, maxNameW), 15, 9);
+    doc.setFontSize(fitted.size);
+    doc.text(fitted.text || "—", leftX, 9);
+
+    // Price (kept large, but if too wide shrink a bit)
+    doc.setFontSize(16);
+    let ps=16;
+    while(ps>12 && doc.getTextWidth(priceStr)>(80-6)){ ps-=0.5; doc.setFontSize(ps); }
+    doc.text(priceStr, rightX, 9, {align:"right"});
+
+    // SKU line
+    doc.setFont("helvetica","normal");
+    doc.setFontSize(9);
+    doc.text("SKU: "+it.code, 3, 14);
+
+    // Barcode slightly smaller height so it never collides
+    const img=barcodeDataURL(it.code);
+    doc.addImage(img,"PNG",3,16,74,20);
+
+    doc.setFontSize(7.2);
+    doc.setTextColor(40,40,40);
+    doc.text(footer,40,49,{align:"center"});
+  }
+  const blobUrl=doc.output("bloburl");window.open(blobUrl,"_blank");toast("PDF");
+}
+async function exportJSON(){const products=await idbAll("products");const meta=await idbAll("meta");const data={exportedAt:new Date().toISOString(),products,meta,queue:state.queue};const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="marckbusiness_generador_backup.json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
+async function importExcelFile(file){const data=new Uint8Array(await file.arrayBuffer());const wb=XLSX.read(data,{type:"array"});const ws=wb.Sheets[wb.SheetNames[0]];const rows=XLSX.utils.sheet_to_json(ws,{defval:""});let ok=0, bad=0;for(const r of rows){const sku=String(r.SKU ?? r.sku ?? r.CODIGO ?? r.codigo ?? r.Código ?? r.codigo_barras ?? r.CODBARRAS ?? "").trim();const name=String(r.NOMBRE ?? r.nombre ?? r.PRODUCTO ?? r.producto ?? "").trim();const priceRaw=r.PRECIO ?? r.precio ?? r.PRICE ?? r.price ?? "";const price=Number(String(priceRaw).replace(/[^0-9.]/g,""));if(!validateCode5(sku)||!name||isNaN(price)){bad++;continue;}await idbPut("products",{code:sku,name,price:Number(price.toFixed(2)),nameKey:norm(name),updatedAt:Date.now()});ok++;}await refreshPicker();renderPreview();toast("Excel importado");if(bad>0){alert("Importados: "+ok+" | Saltados: "+bad+" (revisa columnas SKU/NOMBRE/PRECIO).");}}
+function wire(){["pCode","pName","pPrice"].forEach(id=>$(id).addEventListener("input",renderPreview));$("btnSave").addEventListener("click",saveProduct);$("btnClearForm").addEventListener("click",async()=>{$("pCode").value=await nextCode();$("pName").value="";$("pPrice").value="";renderPreview();});$("btnNext").addEventListener("click",async()=>{$("pCode").value=await nextCode();$("pCode").focus();$("pCode").select();renderPreview();});$("qSearch").addEventListener("input",refreshPicker);$("btnRefresh").addEventListener("click",refreshPicker);$("btnAddToQueue").addEventListener("click",addToQueue);$("btnClearQueue").addEventListener("click",clearQueue);$("btnPDF").addEventListener("click",openPDF);$("queueBody").addEventListener("click",(e)=>{const b=e.target.closest("button[data-act]");if(!b)return;const i=Number(b.dataset.i);if(b.dataset.act==="del"){state.queue.splice(i,1);saveQueue();renderQueue();}if(b.dataset.act==="edit"){const v=prompt("Nueva cantidad:",state.queue[i].qty);if(v===null)return;state.queue[i].qty=Math.max(1,Number(v||1));saveQueue();renderQueue();}});$("btnExcel").addEventListener("click",()=>$("excelFile").click());$("excelFile").addEventListener("change",async(e)=>{const file=e.target.files?.[0];if(!file)return;try{await importExcelFile(file);}catch(err){alert("Error importando Excel.");}e.target.value="";});$("btnExport").addEventListener("click",exportJSON);$("btnWipe").addEventListener("click",async()=>{if(confirm("¿Borrar todo?")){await idbClear();state.queue=[];saveQueue();await refreshPicker();renderQueue();$("pCode").value=await nextCode();$("pName").value="";$("pPrice").value="";renderPreview();}});window.addEventListener("keydown",(e)=>{if(e.key==="Enter"&&e.ctrlKey){e.preventDefault();saveProduct();}});}
+(async function init(){db=await openDB();loadQueue();renderQueue();const meta=await idbGet("meta","next");$("pCode").value=meta?.value?pad5(meta.value):pad5(1);await refreshPicker();renderPreview();wire();})();
 </script>
 </body>
 </html>
+
 
