@@ -3,8 +3,9 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>GENERADOR — Etiquetas 8×5 cm (PDF) | MarckBusiness</title>
+  <title>GENERADOR — Etiquetas (PDF) | MarckBusiness</title>
 
+  <!-- Librerías -->
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -19,6 +20,7 @@
       --accent:#2b7cff;
       --accent2:#1dd3b0;
       --ok:#22c55e;
+      --danger:#ef4444;
       --border:rgba(255,255,255,.10);
       --shadow:0 16px 50px rgba(0,0,0,.55);
       --radius:18px;
@@ -34,31 +36,46 @@
         radial-gradient(900px 650px at 90% 0%, rgba(29,211,176,.14), transparent 55%),
         linear-gradient(180deg, rgba(255,255,255,.03), transparent 40%),
         var(--bg);
+      min-height:100vh;
     }
+
+    /* ---------- Layout ---------- */
     .wrap{max-width:1200px;margin:0 auto;padding:18px}
     .top{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:14px}
-    .brand{display:flex;gap:12px;align-items:center}
-    .logoMark{
-      width:44px;height:44px;border-radius:14px;
-      background:linear-gradient(135deg, rgba(43,124,255,.95), rgba(29,211,176,.95));
-      box-shadow:0 16px 34px rgba(43,124,255,.18);
-      position:relative;overflow:hidden;
-    }
-    .logoMark:after{content:"";position:absolute;inset:-30%;
-      background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.35), transparent 55%);
-      transform:rotate(18deg);
-    }
+    .brand{display:flex;gap:12px;align-items:center;min-width:260px}
     .brand h1{margin:0;font-size:18px;font-weight:1000;letter-spacing:.2px}
     .brand p{margin:2px 0 0;color:var(--muted);font-weight:850;font-size:13px}
+
+    /* LOGO REAL (LOGO1.png) */
+    .logoImg{
+      width:48px;height:48px;border-radius:14px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow:0 16px 34px rgba(43,124,255,.14);
+      overflow:hidden;
+      display:flex;align-items:center;justify-content:center;
+    }
+    .logoImg img{
+      width:100%;
+      height:100%;
+      object-fit:contain;       /* NO distorsiona */
+      padding:6px;
+      display:block;
+    }
+
     .pill{
       display:inline-flex;gap:8px;align-items:center;
       padding:8px 12px;border-radius:999px;
       border:1px solid rgba(43,124,255,.35);
       background:rgba(43,124,255,.10);
       font-weight:1000;color:#cfe4ff;
+      user-select:none;
+      white-space:nowrap;
     }
+
     .grid{display:grid;grid-template-columns: 1.05fr .95fr;gap:14px}
     @media (max-width: 980px){.grid{grid-template-columns:1fr}}
+
     .card{
       background: rgba(15, 27, 47, .76);
       border:1px solid var(--border);
@@ -76,10 +93,12 @@
     .card > *{position:relative; z-index:1}
     .card h2{margin:0 0 10px;font-size:15px;font-weight:1000}
     .muted{color:var(--muted);font-weight:850;font-size:13px;line-height:1.35}
+
     .form{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
     .field{display:flex;flex-direction:column;gap:6px;min-width:0}
     .field.full{grid-column:1/-1}
     label{font-size:12px;color:var(--muted);font-weight:950;letter-spacing:.2px}
+
     input, select{
       width:100%;
       padding:12px 12px;
@@ -94,8 +113,10 @@
       border-color: rgba(43,124,255,.55);
       box-shadow: 0 0 0 4px rgba(43,124,255,.14);
     }
+
     .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
     .row .grow{flex:1;min-width:220px}
+
     .btn{
       border:none;cursor:pointer;
       padding:11px 14px;border-radius:14px;
@@ -109,11 +130,13 @@
     .btn.secondary{background:#0b1628;border:1px solid var(--border);box-shadow:none;color:var(--text)}
     .btn.danger{background:linear-gradient(90deg,#ef4444,#b91c1c)}
     .btn.small{padding:9px 12px;border-radius:12px}
+
     table{width:100%;border-collapse:collapse;margin-top:12px;overflow:hidden;border-radius:14px;border:1px solid var(--border)}
     th,td{padding:10px 10px;border-bottom:1px solid var(--border);text-align:left;font-weight:900;font-size:13px;vertical-align:top}
     th{background:rgba(43,124,255,.12);color:#cfe4ff}
     tr:last-child td{border-bottom:none}
     td small{color:var(--muted);font-weight:900}
+
     .previewWrap{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start;margin-top:10px}
     .labelPreview{
       background:#fff;color:#111;border-radius:14px;
@@ -126,8 +149,10 @@
     .labelPreview .price{font-size:16px}
     .labelPreview .code{font-size:11px;color:#333;font-weight:900;margin-top:3px}
     .labelPreview svg{width:100%;height:46px;margin-top:6px}
+
     .footer{margin-top:14px;color:rgba(255,255,255,.65);font-weight:900;font-size:12px;text-align:center}
     .footer b{color:#cfe4ff}
+
     .toast{
       position:fixed;left:50%;bottom:18px;transform:translateX(-50%);
       background:rgba(17,24,39,.92);border:1px solid rgba(255,255,255,.12);
@@ -135,21 +160,107 @@
       box-shadow:0 20px 44px rgba(0,0,0,.45);
       opacity:0;pointer-events:none;
       transition:opacity .18s ease, transform .18s ease;
+      z-index:50;
     }
     .toast.show{opacity:1; transform:translateX(-50%) translateY(-6px);}
+
+    /* ---------- Login Overlay ---------- */
+    .loginOverlay{
+      position:fixed; inset:0;
+      background:
+        radial-gradient(900px 650px at 10% 0%, rgba(43,124,255,.20), transparent 55%),
+        radial-gradient(900px 650px at 90% 0%, rgba(29,211,176,.16), transparent 55%),
+        rgba(0,0,0,.55);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      z-index:1000;
+    }
+    .loginBox{
+      width:min(560px, 100%);
+      background: rgba(15,27,47,.88);
+      border:1px solid rgba(255,255,255,.14);
+      border-radius: 22px;
+      box-shadow: 0 24px 70px rgba(0,0,0,.60);
+      padding:16px;
+      position:relative;
+      overflow:hidden;
+    }
+    .loginBox:before{
+      content:""; position:absolute; inset:-2px;
+      background:linear-gradient(135deg, rgba(43,124,255,.22), transparent 40%, rgba(29,211,176,.16));
+      filter:blur(18px); opacity:.6; pointer-events:none;
+    }
+    .loginBox > *{ position:relative; z-index:1; }
+    .loginHead{
+      display:flex; gap:12px; align-items:center;
+      padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,.10);
+      margin-bottom:12px;
+    }
+    .loginTitle{display:flex; flex-direction:column; gap:2px}
+    .loginTitle b{font-size:16px; font-weight:1000}
+    .loginTitle small{color:var(--muted); font-weight:900}
+    .loginForm{display:grid; grid-template-columns: 1fr; gap:10px; margin-top:10px;}
+    .loginRow{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    .loginRow input{flex:1; min-width:220px}
+    .topRightActions{display:flex;gap:10px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
   </style>
 </head>
+
 <body>
-  <div class="wrap">
+  <!-- LOGIN -->
+  <div class="loginOverlay" id="loginOverlay" style="display:none">
+    <div class="loginBox">
+      <div class="loginHead">
+        <div class="logoImg" style="width:54px;height:54px;border-radius:16px">
+          <img id="loginLogo" src="./LOGO1.png" alt="LOGO1" onerror="this.style.display='none'">
+        </div>
+        <div class="loginTitle">
+          <b>Iniciar sesión</b>
+          <small>Ingresa el código para usar el generador</small>
+        </div>
+      </div>
+
+      <div class="loginForm">
+        <div class="field full">
+          <label>Código</label>
+          <input id="loginCode" type="password" inputmode="numeric" placeholder="••••••" autocomplete="off">
+          <div class="muted">Código requerido: <b>363534</b></div>
+        </div>
+
+        <div class="loginRow">
+          <button class="btn" id="btnLogin" type="button">Entrar</button>
+          <button class="btn secondary" id="btnLoginClear" type="button">Limpiar</button>
+        </div>
+      </div>
+
+      <div class="muted" style="margin-top:10px">
+        Nota: el login se guarda en este navegador (localStorage).
+      </div>
+    </div>
+  </div>
+
+  <!-- APP -->
+  <div class="wrap" id="appWrap" style="display:none">
     <div class="top">
       <div class="brand">
-        <div class="logoMark"></div>
+        <div class="logoImg" title="LOGO1 (solo en el sitio)">
+          <!-- IMPORTANTE:
+               - Si tu index.html está en la RAÍZ del repo, usa: ./LOGO1.png
+               - Si está en una carpeta (ej: /MTR-PLAZA/), pon la ruta relativa correcta -->
+          <img id="siteLogo" src="./LOGO1.png" alt="LOGO1">
+        </div>
         <div>
-          <h1>GENERADOR — Etiquetas 8×5 cm (PDF)</h1>
+          <h1>GENERADOR — Etiquetas (PDF)</h1>
           <p>SKU (5 dígitos) • Nombre • Precio • PDF listo para imprimir</p>
         </div>
       </div>
-      <div class="pill">MarckBusiness • Offline • PDF</div>
+
+      <div class="topRightActions">
+        <div class="pill">MarckBusiness • Offline • PDF</div>
+        <button class="btn secondary" id="btnLogout" type="button">Cerrar sesión</button>
+      </div>
     </div>
 
     <div class="grid">
@@ -181,7 +292,7 @@
 
         <div class="previewWrap">
           <div>
-            <div class="muted"><b>Vista previa (80×50mm)</b></div>
+            <div class="muted"><b>Vista previa</b> (el logo NO va en etiquetas)</div>
             <div class="labelPreview" id="previewBox">
               <div class="line1">
                 <div class="name" id="pvName">—</div>
@@ -210,10 +321,36 @@
             <label>Producto</label>
             <select id="pick"></select>
           </div>
+
           <div class="field">
             <label>Cantidad</label>
             <input id="qty" type="number" min="1" value="1"/>
           </div>
+
+          <!-- NUEVO: tamaño -->
+          <div class="field">
+            <label>Ancho etiqueta (mm)</label>
+            <input id="lblW" type="number" min="20" step="0.1" value="80"/>
+          </div>
+
+          <div class="field">
+            <label>Alto etiqueta (mm)</label>
+            <input id="lblH" type="number" min="20" step="0.1" value="50"/>
+          </div>
+
+          <!-- NUEVO: orientación -->
+          <div class="field full">
+            <label>Orientación</label>
+            <select id="lblOri">
+              <option value="AUTO">Automática (según ancho/alto)</option>
+              <option value="landscape">Horizontal</option>
+              <option value="portrait">Vertical</option>
+            </select>
+            <div class="muted" style="margin-top:6px">
+              Tip: 80×50 normalmente es <b>Horizontal</b>. 50×80 es <b>Vertical</b>.
+            </div>
+          </div>
+
           <div class="field full">
             <div class="row">
               <button class="btn" id="btnAddToQueue" type="button">Agregar</button>
@@ -252,42 +389,273 @@
   <div class="toast" id="toast"></div>
 
 <script>
+/* ============================================================
+   GENERADOR Etiquetas (IndexedDB)
+   + Tamaño y orientación PDF seleccionable
+   + LOGIN con código 363534 y botón cerrar sesión
+   + LOGO1.png solo en el sitio (NO en etiquetas / PDF)
+============================================================ */
+
+const LOGIN_CODE = "363534";
+const LOGIN_KEY  = "mb_labels_logged_in_v1";
+
 const DB_NAME="generador_etiquetas_marckbusiness_v3";
 const DB_VER=1;
 let db;
+
 const $=id=>document.getElementById(id);
 const state={queue:[]};
-function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove("show"),2000);}
+
+function toast(msg){
+  const t=$("toast");
+  t.textContent=msg;
+  t.classList.add("show");
+  clearTimeout(toast._t);
+  toast._t=setTimeout(()=>t.classList.remove("show"),2000);
+}
+
 function money(n){return "Q"+(Number(n||0)).toFixed(2);}
 function norm(s){return String(s||"").trim().toLowerCase().replace(/\s+/g," ");}
+
 function pad5(n){return String(n).padStart(5,"0");}
 function validateCode5(code){return /^\d{5}$/.test(code);}
-function openDB(){return new Promise((resolve,reject)=>{const req=indexedDB.open(DB_NAME,DB_VER);req.onupgradeneeded=e=>{const d=e.target.result;if(!d.objectStoreNames.contains("products")){const s=d.createObjectStore("products",{keyPath:"code"});s.createIndex("name","nameKey",{unique:false});}if(!d.objectStoreNames.contains("meta"))d.createObjectStore("meta",{keyPath:"key"});};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);});}
+
+// ---------- Login ----------
+function isLoggedIn(){
+  return localStorage.getItem(LOGIN_KEY)==="1";
+}
+function showLogin(){
+  $("loginOverlay").style.display="flex";
+  $("appWrap").style.display="none";
+  setTimeout(()=>{ $("loginCode").focus(); }, 50);
+}
+function showApp(){
+  $("loginOverlay").style.display="none";
+  $("appWrap").style.display="block";
+}
+function doLogin(){
+  const v = String($("loginCode").value||"").trim();
+  if(v !== LOGIN_CODE){
+    alert("Código incorrecto.");
+    $("loginCode").focus();
+    $("loginCode").select();
+    return;
+  }
+  localStorage.setItem(LOGIN_KEY,"1");
+  toast("Sesión iniciada");
+  showApp();
+}
+function doLogout(){
+  if(confirm("¿Cerrar sesión?")){
+    localStorage.removeItem(LOGIN_KEY);
+    toast("Sesión cerrada");
+    showLogin();
+  }
+}
+
+// ---------- IndexedDB ----------
+function openDB(){
+  return new Promise((resolve,reject)=>{
+    const req=indexedDB.open(DB_NAME,DB_VER);
+    req.onupgradeneeded=e=>{
+      const d=e.target.result;
+      if(!d.objectStoreNames.contains("products")){
+        const s=d.createObjectStore("products",{keyPath:"code"});
+        s.createIndex("name","nameKey",{unique:false});
+      }
+      if(!d.objectStoreNames.contains("meta")) d.createObjectStore("meta",{keyPath:"key"});
+    };
+    req.onsuccess=()=>resolve(req.result);
+    req.onerror=()=>reject(req.error);
+  });
+}
 function tx(store,mode="readonly"){return db.transaction(store,mode).objectStore(store);}
-function idbGet(store,key){return new Promise((res,rej)=>{const r=tx(store).get(key);r.onsuccess=()=>res(r.result||null);r.onerror=()=>rej(r.error);});}
-function idbPut(store,val){return new Promise((res,rej)=>{const r=tx(store,"readwrite").put(val);r.onsuccess=()=>res(true);r.onerror=()=>rej(r.error);});}
-function idbAll(store){return new Promise((res,rej)=>{const r=tx(store).getAll();r.onsuccess=()=>res(r.result||[]);r.onerror=()=>rej(r.error);});}
-function idbClear(){return Promise.all([new Promise((res,rej)=>{const r=db.transaction("products","readwrite").objectStore("products").clear();r.onsuccess=()=>res(true);r.onerror=()=>rej(r.error);}),new Promise((res,rej)=>{const r=db.transaction("meta","readwrite").objectStore("meta").clear();r.onsuccess=()=>res(true);r.onerror=()=>rej(r.error);})]);}
-async function nextCode(){const meta=await idbGet("meta","next");const n=meta?.value?Number(meta.value):1;await idbPut("meta",{key:"next",value:n+1});return pad5(n);}
-function renderPreview(){const code=$("pCode").value.trim()||"00000";const name=$("pName").value.trim()||"—";const price=Number($("pPrice").value||0);$("pvCode").textContent=code;$("pvName").textContent=name;$("pvPrice").textContent=money(price);const svg=$("pvBarcode");svg.innerHTML="";if(validateCode5(code)){try{JsBarcode(svg,code,{format:"CODE128",displayValue:false,margin:0,height:40,width:2});}catch(e){}}}
-async function saveProduct(){const code=$("pCode").value.trim();const name=$("pName").value.trim();const price=Number($("pPrice").value);if(!validateCode5(code))return alert("SKU inválido.");if(!name)return alert("Nombre requerido.");if(isNaN(price)||price<0)return alert("Precio inválido.");const p={code,name,price:Number(price.toFixed(2)),nameKey:norm(name),updatedAt:Date.now()};await idbPut("products",p);await refreshPicker();$("pCode").value=await nextCode();$("pName").value="";$("pPrice").value="";renderPreview();toast("Guardado");}
-async function refreshPicker(){const q=norm($("qSearch").value);const all=await idbAll("products");const list=q?all.filter(p=>norm(p.code).includes(q)||(p.nameKey||"").includes(q)):all;const sel=$("pick");sel.innerHTML="";if(list.length===0){const opt=document.createElement("option");opt.value="";opt.textContent="Sin productos";sel.appendChild(opt);return;}for(const p of list.sort((a,b)=>(a.nameKey||"").localeCompare(b.nameKey||""))){const opt=document.createElement("option");opt.value=p.code;opt.textContent=`${p.code} — ${p.name} — ${money(p.price)}`;sel.appendChild(opt);}}
-function loadQueue(){try{const q=JSON.parse(localStorage.getItem("mb_label_queue_v3")||"[]");if(Array.isArray(q))state.queue=q;}catch{state.queue=[];}}
-function saveQueue(){localStorage.setItem("mb_label_queue_v3",JSON.stringify(state.queue));}
-function renderQueue(){const tb=$("queueBody");tb.innerHTML="";if(state.queue.length===0){tb.innerHTML='<tr><td colspan="5"><small style="color:rgba(255,255,255,.6);font-weight:900">Cola vacía.</small></td></tr>';return;}state.queue.forEach((it,idx)=>{const tr=document.createElement("tr");tr.innerHTML=`<td>${it.code}</td><td>${it.name}</td><td>${money(it.price)}</td><td>${it.qty}</td><td><button class="btn small secondary" data-act="edit" data-i="${idx}" type="button">Cant.</button> <button class="btn small danger" data-act="del" data-i="${idx}" type="button">X</button></td>`;tb.appendChild(tr);});}
-async function addToQueue(){const code=$("pick").value;const qty=Math.max(1,Number($("qty").value||1));if(!code)return alert("Seleccione un producto.");const p=await idbGet("products",code);if(!p)return alert("No encontrado.");state.queue.push({code:p.code,name:p.name,price:p.price,qty,updatedAt:Date.now()});saveQueue();renderQueue();toast("Agregado");}
-function clearQueue(){state.queue=[];saveQueue();renderQueue();toast("Cola limpia");}
-function barcodeDataURL(code){const canvas=document.createElement("canvas");canvas.width=520;canvas.height=140;JsBarcode(canvas,code,{format:"CODE128",displayValue:false,margin:0,height:95,width:2});return canvas.toDataURL("image/png",1.0);}
-async function openPDF(){if(state.queue.length===0)return alert("Cola vacía.");const labels=[];for(const it of state.queue)for(let i=0;i<it.qty;i++)labels.push(it);const {jsPDF}=window.jspdf;const doc=new jsPDF({orientation:"landscape",unit:"mm",format:[80,50],compress:true});const footer="MarckBusiness © 2025 • Todos los derechos reservados";
+function idbGet(store,key){
+  return new Promise((res,rej)=>{
+    const r=tx(store).get(key);
+    r.onsuccess=()=>res(r.result||null);
+    r.onerror=()=>rej(r.error);
+  });
+}
+function idbPut(store,val){
+  return new Promise((res,rej)=>{
+    const r=tx(store,"readwrite").put(val);
+    r.onsuccess=()=>res(true);
+    r.onerror=()=>rej(r.error);
+  });
+}
+function idbAll(store){
+  return new Promise((res,rej)=>{
+    const r=tx(store).getAll();
+    r.onsuccess=()=>res(r.result||[]);
+    r.onerror=()=>rej(r.error);
+  });
+}
+function idbClear(){
+  return Promise.all([
+    new Promise((res,rej)=>{
+      const r=db.transaction("products","readwrite").objectStore("products").clear();
+      r.onsuccess=()=>res(true); r.onerror=()=>rej(r.error);
+    }),
+    new Promise((res,rej)=>{
+      const r=db.transaction("meta","readwrite").objectStore("meta").clear();
+      r.onsuccess=()=>res(true); r.onerror=()=>rej(r.error);
+    })
+  ]);
+}
+
+async function nextCode(){
+  const meta=await idbGet("meta","next");
+  const n=meta?.value?Number(meta.value):1;
+  await idbPut("meta",{key:"next",value:n+1});
+  return pad5(n);
+}
+
+// ---------- Preview ----------
+function renderPreview(){
+  const code=$("pCode").value.trim()||"00000";
+  const name=$("pName").value.trim()||"—";
+  const price=Number($("pPrice").value||0);
+  $("pvCode").textContent=code;
+  $("pvName").textContent=name;
+  $("pvPrice").textContent=money(price);
+
+  const svg=$("pvBarcode");
+  svg.innerHTML="";
+  if(validateCode5(code)){
+    try{
+      JsBarcode(svg,code,{format:"CODE128",displayValue:false,margin:0,height:40,width:2});
+    }catch(e){}
+  }
+}
+
+// ---------- Products ----------
+async function saveProduct(){
+  const code=$("pCode").value.trim();
+  const name=$("pName").value.trim();
+  const price=Number($("pPrice").value);
+
+  if(!validateCode5(code)) return alert("SKU inválido.");
+  if(!name) return alert("Nombre requerido.");
+  if(isNaN(price)||price<0) return alert("Precio inválido.");
+
+  const p={code,name,price:Number(price.toFixed(2)),nameKey:norm(name),updatedAt:Date.now()};
+  await idbPut("products",p);
+
+  await refreshPicker();
+  $("pCode").value=await nextCode();
+  $("pName").value="";
+  $("pPrice").value="";
+  renderPreview();
+  toast("Guardado");
+}
+
+async function refreshPicker(){
+  const q=norm($("qSearch").value);
+  const all=await idbAll("products");
+  const list=q?all.filter(p=>norm(p.code).includes(q)||(p.nameKey||"").includes(q)):all;
+  const sel=$("pick");
+  sel.innerHTML="";
+  if(list.length===0){
+    const opt=document.createElement("option");
+    opt.value="";
+    opt.textContent="Sin productos";
+    sel.appendChild(opt);
+    return;
+  }
+  for(const p of list.sort((a,b)=>(a.nameKey||"").localeCompare(b.nameKey||""))){
+    const opt=document.createElement("option");
+    opt.value=p.code;
+    opt.textContent=`${p.code} — ${p.name} — ${money(p.price)}`;
+    sel.appendChild(opt);
+  }
+}
+
+// ---------- Queue (localStorage) ----------
+function loadQueue(){
+  try{
+    const q=JSON.parse(localStorage.getItem("mb_label_queue_v3")||"[]");
+    if(Array.isArray(q)) state.queue=q;
+  }catch{ state.queue=[]; }
+}
+function saveQueue(){ localStorage.setItem("mb_label_queue_v3",JSON.stringify(state.queue)); }
+function renderQueue(){
+  const tb=$("queueBody");
+  tb.innerHTML="";
+  if(state.queue.length===0){
+    tb.innerHTML='<tr><td colspan="5"><small style="color:rgba(255,255,255,.6);font-weight:900">Cola vacía.</small></td></tr>';
+    return;
+  }
+  state.queue.forEach((it,idx)=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td>${it.code}</td>
+      <td>${it.name}</td>
+      <td>${money(it.price)}</td>
+      <td>${it.qty}</td>
+      <td>
+        <button class="btn small secondary" data-act="edit" data-i="${idx}" type="button">Cant.</button>
+        <button class="btn small danger" data-act="del" data-i="${idx}" type="button">X</button>
+      </td>
+    `;
+    tb.appendChild(tr);
+  });
+}
+async function addToQueue(){
+  const code=$("pick").value;
+  const qty=Math.max(1,Number($("qty").value||1));
+  if(!code) return alert("Seleccione un producto.");
+  const p=await idbGet("products",code);
+  if(!p) return alert("No encontrado.");
+  state.queue.push({code:p.code,name:p.name,price:p.price,qty,updatedAt:Date.now()});
+  saveQueue(); renderQueue(); toast("Agregado");
+}
+function clearQueue(){ state.queue=[]; saveQueue(); renderQueue(); toast("Cola limpia"); }
+
+// ---------- Barcode (image for PDF) ----------
+function barcodeDataURL(code){
+  const canvas=document.createElement("canvas");
+  canvas.width=520; canvas.height=140;
+  JsBarcode(canvas,code,{format:"CODE128",displayValue:false,margin:0,height:95,width:2});
+  return canvas.toDataURL("image/png",1.0);
+}
+
+// ---------- PDF (tamaño/orientación seleccionable) ----------
+async function openPDF(){
+  if(state.queue.length===0) return alert("Cola vacía.");
+
+  // leer config desde UI
+  let w = Number($("lblW")?.value || 80);
+  let h = Number($("lblH")?.value || 50);
+  if(!isFinite(w) || w < 20) w = 80;
+  if(!isFinite(h) || h < 20) h = 50;
+
+  let ori = $("lblOri")?.value || "AUTO";
+  if(ori === "AUTO"){
+    ori = (w >= h) ? "landscape" : "portrait";
+  }
+
+  const pageW = w, pageH = h;
+
+  const labels=[];
+  for(const it of state.queue){
+    for(let i=0;i<it.qty;i++) labels.push(it);
+  }
+
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation: ori, unit:"mm", format:[pageW,pageH], compress:true});
+  const footer="MarckBusiness © 2025 • Todos los derechos reservados";
+
   function fitOneLine(doc, text, maxWidth, startSize=15, minSize=9){
     let s=startSize;
     doc.setFontSize(s);
     while(s>minSize && doc.getTextWidth(text)>maxWidth){ s-=0.5; doc.setFontSize(s); }
     if(doc.getTextWidth(text)<=maxWidth) return {size:s, text};
-    // truncate with ellipsis at min size
+
     doc.setFontSize(minSize);
     const ell="…";
     if(doc.getTextWidth(ell)>maxWidth) return {size:minSize, text:""};
+
     let lo=0, hi=text.length;
     while(lo<hi){
       const mid=Math.ceil((lo+hi)/2);
@@ -295,56 +663,206 @@ async function openPDF(){if(state.queue.length===0)return alert("Cola vacía.");
       if(doc.getTextWidth(t)<=maxWidth) lo=mid;
       else hi=mid-1;
     }
-    const out=text.slice(0,lo)+ell;
-    return {size:minSize, text:out};
+    return {size:minSize, text:text.slice(0,lo)+ell};
   }
   function safeText(s){ return String(s||"").replace(/\s+/g," ").trim(); }
-  for(let i=0;i<labels.length;i++){if(i>0)doc.addPage([80,50],"landscape");const it=labels[i];
+
+  // layout dinámico
+  const m = 3;
+  const topY = 9;
+  const skuY = 14;
+  const barcodeY = 16;
+  const footerY = pageH - 2;
+
+  const barcodeH = Math.max(12, Math.min(26, pageH - (barcodeY + 6)));
+  const barcodeW = Math.max(20, pageW - (m*2));
+
+  for(let i=0;i<labels.length;i++){
+    if(i>0) doc.addPage([pageW,pageH], ori);
+    const it=labels[i];
+
     doc.setTextColor(10,10,10);
     const name=safeText(it.name);
     const priceStr=money(it.price);
-    doc.setFont("helvetica","bold");
 
-    // Reserve area: left for name, right for price
+    doc.setFont("helvetica","bold");
     doc.setFontSize(16);
+
     const priceW = doc.getTextWidth(priceStr);
     const gap = 3;
-    const leftX = 3;
-    const rightX = 78; // align right
+    const leftX = m;
+    const rightX = pageW - m;
     const maxNameW = (rightX - priceW - gap) - leftX;
 
-    // Name (auto-fit, ellipsis if needed)
     const fitted = fitOneLine(doc, name, Math.max(10, maxNameW), 15, 9);
     doc.setFontSize(fitted.size);
-    doc.text(fitted.text || "—", leftX, 9);
+    doc.text(fitted.text || "—", leftX, topY);
 
-    // Price (kept large, but if too wide shrink a bit)
-    doc.setFontSize(16);
+    // precio (si no cabe, reduce)
     let ps=16;
-    while(ps>12 && doc.getTextWidth(priceStr)>(80-6)){ ps-=0.5; doc.setFontSize(ps); }
-    doc.text(priceStr, rightX, 9, {align:"right"});
+    doc.setFontSize(ps);
+    while(ps>11 && doc.getTextWidth(priceStr)>(pageW - (m*2))){ ps-=0.5; doc.setFontSize(ps); }
+    doc.text(priceStr, rightX, topY, {align:"right"});
 
-    // SKU line
     doc.setFont("helvetica","normal");
     doc.setFontSize(9);
-    doc.text("SKU: "+it.code, 3, 14);
+    doc.text("SKU: "+it.code, m, skuY);
 
-    // Barcode slightly smaller height so it never collides
     const img=barcodeDataURL(it.code);
-    doc.addImage(img,"PNG",3,16,74,20);
+    doc.addImage(img,"PNG", m, barcodeY, barcodeW, barcodeH);
 
     doc.setFontSize(7.2);
     doc.setTextColor(40,40,40);
-    doc.text(footer,40,49,{align:"center"});
+    doc.text(footer, pageW/2, footerY, {align:"center"});
   }
-  const blobUrl=doc.output("bloburl");window.open(blobUrl,"_blank");toast("PDF");
+
+  const blobUrl=doc.output("bloburl");
+  window.open(blobUrl,"_blank");
+  toast("PDF");
 }
-async function exportJSON(){const products=await idbAll("products");const meta=await idbAll("meta");const data={exportedAt:new Date().toISOString(),products,meta,queue:state.queue};const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="marckbusiness_generador_backup.json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
-async function importExcelFile(file){const data=new Uint8Array(await file.arrayBuffer());const wb=XLSX.read(data,{type:"array"});const ws=wb.Sheets[wb.SheetNames[0]];const rows=XLSX.utils.sheet_to_json(ws,{defval:""});let ok=0, bad=0;for(const r of rows){const sku=String(r.SKU ?? r.sku ?? r.CODIGO ?? r.codigo ?? r.Código ?? r.codigo_barras ?? r.CODBARRAS ?? "").trim();const name=String(r.NOMBRE ?? r.nombre ?? r.PRODUCTO ?? r.producto ?? "").trim();const priceRaw=r.PRECIO ?? r.precio ?? r.PRICE ?? r.price ?? "";const price=Number(String(priceRaw).replace(/[^0-9.]/g,""));if(!validateCode5(sku)||!name||isNaN(price)){bad++;continue;}await idbPut("products",{code:sku,name,price:Number(price.toFixed(2)),nameKey:norm(name),updatedAt:Date.now()});ok++;}await refreshPicker();renderPreview();toast("Excel importado");if(bad>0){alert("Importados: "+ok+" | Saltados: "+bad+" (revisa columnas SKU/NOMBRE/PRECIO).");}}
-function wire(){["pCode","pName","pPrice"].forEach(id=>$(id).addEventListener("input",renderPreview));$("btnSave").addEventListener("click",saveProduct);$("btnClearForm").addEventListener("click",async()=>{$("pCode").value=await nextCode();$("pName").value="";$("pPrice").value="";renderPreview();});$("btnNext").addEventListener("click",async()=>{$("pCode").value=await nextCode();$("pCode").focus();$("pCode").select();renderPreview();});$("qSearch").addEventListener("input",refreshPicker);$("btnRefresh").addEventListener("click",refreshPicker);$("btnAddToQueue").addEventListener("click",addToQueue);$("btnClearQueue").addEventListener("click",clearQueue);$("btnPDF").addEventListener("click",openPDF);$("queueBody").addEventListener("click",(e)=>{const b=e.target.closest("button[data-act]");if(!b)return;const i=Number(b.dataset.i);if(b.dataset.act==="del"){state.queue.splice(i,1);saveQueue();renderQueue();}if(b.dataset.act==="edit"){const v=prompt("Nueva cantidad:",state.queue[i].qty);if(v===null)return;state.queue[i].qty=Math.max(1,Number(v||1));saveQueue();renderQueue();}});$("btnExcel").addEventListener("click",()=>$("excelFile").click());$("excelFile").addEventListener("change",async(e)=>{const file=e.target.files?.[0];if(!file)return;try{await importExcelFile(file);}catch(err){alert("Error importando Excel.");}e.target.value="";});$("btnExport").addEventListener("click",exportJSON);$("btnWipe").addEventListener("click",async()=>{if(confirm("¿Borrar todo?")){await idbClear();state.queue=[];saveQueue();await refreshPicker();renderQueue();$("pCode").value=await nextCode();$("pName").value="";$("pPrice").value="";renderPreview();}});window.addEventListener("keydown",(e)=>{if(e.key==="Enter"&&e.ctrlKey){e.preventDefault();saveProduct();}});}
-(async function init(){db=await openDB();loadQueue();renderQueue();const meta=await idbGet("meta","next");$("pCode").value=meta?.value?pad5(meta.value):pad5(1);await refreshPicker();renderPreview();wire();})();
+
+// ---------- Backup ----------
+async function exportJSON(){
+  const products=await idbAll("products");
+  const meta=await idbAll("meta");
+  const data={exportedAt:new Date().toISOString(),products,meta,queue:state.queue};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="marckbusiness_generador_backup.json";
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+async function importExcelFile(file){
+  const data=new Uint8Array(await file.arrayBuffer());
+  const wb=XLSX.read(data,{type:"array"});
+  const ws=wb.Sheets[wb.SheetNames[0]];
+  const rows=XLSX.utils.sheet_to_json(ws,{defval:""});
+  let ok=0, bad=0;
+
+  for(const r of rows){
+    const sku=String(r.SKU ?? r.sku ?? r.CODIGO ?? r.codigo ?? r.Código ?? r.codigo_barras ?? r.CODBARRAS ?? "").trim();
+    const name=String(r.NOMBRE ?? r.nombre ?? r.PRODUCTO ?? r.producto ?? "").trim();
+    const priceRaw=r.PRECIO ?? r.precio ?? r.PRICE ?? r.price ?? "";
+    const price=Number(String(priceRaw).replace(/[^0-9.]/g,""));
+    if(!validateCode5(sku)||!name||isNaN(price)){bad++;continue;}
+    await idbPut("products",{code:sku,name,price:Number(price.toFixed(2)),nameKey:norm(name),updatedAt:Date.now()});
+    ok++;
+  }
+  await refreshPicker();
+  renderPreview();
+  toast("Excel importado");
+  if(bad>0) alert("Importados: "+ok+" | Saltados: "+bad+" (revisa columnas SKU/NOMBRE/PRECIO).");
+}
+
+// ---------- Events ----------
+function wire(){
+  // LOGIN
+  $("btnLogin").addEventListener("click", doLogin);
+  $("btnLoginClear").addEventListener("click", ()=>{ $("loginCode").value=""; $("loginCode").focus(); });
+  $("loginCode").addEventListener("keydown",(e)=>{ if(e.key==="Enter"){ e.preventDefault(); doLogin(); } });
+  $("btnLogout").addEventListener("click", doLogout);
+
+  // Preview inputs
+  ["pCode","pName","pPrice"].forEach(id=>$(id).addEventListener("input",renderPreview));
+
+  // Products
+  $("btnSave").addEventListener("click",saveProduct);
+  $("btnClearForm").addEventListener("click",async()=>{
+    $("pCode").value=await nextCode();
+    $("pName").value="";
+    $("pPrice").value="";
+    renderPreview();
+  });
+  $("btnNext").addEventListener("click",async()=>{
+    $("pCode").value=await nextCode();
+    $("pCode").focus();
+    $("pCode").select();
+    renderPreview();
+  });
+
+  // Picker/search
+  $("qSearch").addEventListener("input",refreshPicker);
+  $("btnRefresh").addEventListener("click",refreshPicker);
+
+  // Queue
+  $("btnAddToQueue").addEventListener("click",addToQueue);
+  $("btnClearQueue").addEventListener("click",clearQueue);
+  $("btnPDF").addEventListener("click",openPDF);
+
+  $("queueBody").addEventListener("click",(e)=>{
+    const b=e.target.closest("button[data-act]");
+    if(!b) return;
+    const i=Number(b.dataset.i);
+    if(b.dataset.act==="del"){
+      state.queue.splice(i,1);
+      saveQueue();
+      renderQueue();
+    }
+    if(b.dataset.act==="edit"){
+      const v=prompt("Nueva cantidad:",state.queue[i].qty);
+      if(v===null) return;
+      state.queue[i].qty=Math.max(1,Number(v||1));
+      saveQueue();
+      renderQueue();
+    }
+  });
+
+  // Import/export
+  $("btnExcel").addEventListener("click",()=>$("excelFile").click());
+  $("excelFile").addEventListener("change",async(e)=>{
+    const file=e.target.files?.[0];
+    if(!file) return;
+    try{ await importExcelFile(file); }
+    catch(err){ alert("Error importando Excel."); }
+    e.target.value="";
+  });
+  $("btnExport").addEventListener("click",exportJSON);
+
+  // Wipe
+  $("btnWipe").addEventListener("click",async()=>{
+    if(confirm("¿Borrar todo?")){
+      await idbClear();
+      state.queue=[];
+      saveQueue();
+      await refreshPicker();
+      renderQueue();
+      $("pCode").value=await nextCode();
+      $("pName").value="";
+      $("pPrice").value="";
+      renderPreview();
+    }
+  });
+
+  // Ctrl+Enter para guardar
+  window.addEventListener("keydown",(e)=>{
+    if(e.key==="Enter"&&e.ctrlKey){
+      e.preventDefault();
+      saveProduct();
+    }
+  });
+}
+
+// ---------- Init ----------
+(async function init(){
+  // Mostrar login o app
+  if(isLoggedIn()) showApp();
+  else showLogin();
+
+  // DB init
+  db=await openDB();
+
+  loadQueue();
+  renderQueue();
+
+  const meta=await idbGet("meta","next");
+  $("pCode").value=meta?.value?pad5(meta.value):pad5(1);
+
+  await refreshPicker();
+  renderPreview();
+  wire();
+})();
 </script>
 </body>
 </html>
-
 
