@@ -129,7 +129,7 @@
     tr:last-child td{border-bottom:none}
     td small{color:var(--muted);font-weight:900}
 
-    /* -------- Vista previa -------- */
+    /* -------- Vista previa mejorada para lectura -------- */
     .previewWrap{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start;margin-top:10px}
     .labelPreview{
       background:#fff;color:#111;border-radius:14px;
@@ -137,20 +137,11 @@
       width:340px;max-width:100%;
       transform-origin:top left;
     }
+    .labelPreview .line1{display:flex;justify-content:space-between;gap:10px;font-weight:1000}
+    .labelPreview .name{font-size:15px;max-width:68%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .labelPreview .price{font-size:16px}
 
-    /* Arriba centrado */
-    .pvTop{
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:2px;
-      text-align:center;
-      font-weight:1000;
-    }
-    .pvName{font-size:14px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .pvPrice{font-size:14px}
-
-    /* Área blanca + borde para lectura */
+    /* Área blanca (quiet zone) + barras grandes */
     .barcodeBox{
       margin-top:8px;
       background:#fff;
@@ -158,7 +149,7 @@
       border:2px solid #000;     /* contraste */
       border-radius:10px;
     }
-    .labelPreview svg{width:100%;height:56px;display:block} /* más chaparro */
+    .labelPreview svg{width:100%;height:68px;display:block}
 
     .footer{margin-top:14px;color:rgba(255,255,255,.65);font-weight:900;font-size:12px;text-align:center}
     .footer b{color:#cfe4ff}
@@ -298,9 +289,9 @@
           <div>
             <div class="muted"><b>Vista previa</b> (el logo NO va en etiquetas)</div>
             <div class="labelPreview" id="previewBox">
-              <div class="pvTop">
-                <div class="pvName" id="pvName">—</div>
-                <div class="pvPrice" id="pvPrice">Q0.00</div>
+              <div class="line1">
+                <div class="name" id="pvName">—</div>
+                <div class="price" id="pvPrice">Q0.00</div>
               </div>
 
               <div class="barcodeBox">
@@ -330,6 +321,7 @@
             <input id="qty" type="number" min="1" value="1"/>
           </div>
 
+          <!-- tamaño: 50x25 por defecto -->
           <div class="field">
             <label>Ancho etiqueta (mm)</label>
             <input id="lblW" type="number" min="20" step="0.1" value="50"/>
@@ -340,6 +332,7 @@
             <input id="lblH" type="number" min="20" step="0.1" value="25"/>
           </div>
 
+          <!-- horizontal fijo (igual lo dejo por si algún día cambias) -->
           <div class="field full">
             <label>Orientación</label>
             <select id="lblOri">
@@ -392,10 +385,8 @@
 <script>
 /* ============================================================
    GENERADOR Etiquetas (IndexedDB)
-   Etiquetas 50x25mm horizontales
-   SOLO: BARCODE + NOMBRE + PRECIO
-   BARCODE: más fuerte y más chaparro
-   PDF: contenido centrado arriba/abajo
+   AJUSTE: Etiquetas 50x25mm horizontales (solo: BARCODE + NOMBRE + PRECIO)
+   BARCODE más fuerte para pistola
 ============================================================ */
 
 const LOGIN_CODE = "363534";
@@ -511,20 +502,22 @@ async function nextCode(){
   return pad5(n);
 }
 
-// ---------- BARCODE fuerte + chaparro (SVG preview) ----------
+// ---------- BARCODE fuerte (para escáner) ----------
 function drawBarcodeToSVG(svgEl, code){
   svgEl.innerHTML="";
   if(!validateCode5(code)) return;
 
+  // más contraste y barras más "gordas"
+  // IMPORTANTÍSIMO: un poco de margen (quiet zone) ayuda a lectura
   try{
     JsBarcode(svgEl, code, {
-      format: "CODE128",
-      displayValue: false,
-      margin: 0,
-      height: 44,      // chaparro
-      width: 3.4,      // fuerte (barras más gruesas)
-      background: "#ffffff",
-      lineColor: "#000000"
+      format:"CODE128",
+      displayValue:false,
+      margin:0,
+      height:58,
+      width:2.6,     // <-- barras más anchas
+      background:"#ffffff",
+      lineColor:"#000000"
     });
   }catch(e){}
 }
@@ -583,7 +576,7 @@ async function refreshPicker(){
   }
 }
 
-// ---------- Queue ----------
+// ---------- Queue (localStorage) ----------
 function loadQueue(){
   try{
     const q=JSON.parse(localStorage.getItem("mb_label_queue_v3")||"[]");
@@ -624,31 +617,33 @@ async function addToQueue(){
 }
 function clearQueue(){ state.queue=[]; saveQueue(); renderQueue(); toast("Cola limpia"); }
 
-// ---------- Barcode (PNG para PDF) — fuerte + chaparro ----------
+// ---------- Barcode (PNG para PDF) ----------
 function barcodeDataURL(code){
   const canvas=document.createElement("canvas");
 
-  // Alta resolución para nítido
-  canvas.width=1100;
-  canvas.height=260;
+  // Mayor resolución para que salga nítido
+  canvas.width=900;
+  canvas.height=320;
 
+  // Ojo: aquí igual lo hacemos "fuerte"
   JsBarcode(canvas, code, {
-    format: "CODE128",
-    displayValue: false,
-    margin: 0,
-    height: 160,     // más chaparro
-    width: 9,        // MÁS fuerte (barras gruesas)
-    background: "#ffffff",
-    lineColor: "#000000"
+    format:"CODE128",
+    displayValue:false,
+    margin:0,
+    height:230,
+    width:6,                // <-- MUY importante para lectura
+    background:"#ffffff",
+    lineColor:"#000000"
   });
 
   return canvas.toDataURL("image/png",1.0);
 }
 
-// ---------- PDF (centrado arriba/abajo) ----------
+// ---------- PDF (50x25mm, horizontal, SOLO BARCODE+NOMBRE+PRECIO) ----------
 async function openPDF(){
   if(state.queue.length===0) return alert("Cola vacía.");
 
+  // Forzar a 50x25 si el usuario cambia, igual se respeta lo que ponga.
   let w = Number($("lblW")?.value || 50);
   let h = Number($("lblH")?.value || 25);
   if(!isFinite(w) || w < 20) w = 50;
@@ -669,23 +664,18 @@ async function openPDF(){
   const {jsPDF}=window.jspdf;
   const doc=new jsPDF({orientation: ori, unit:"mm", format:[pageW,pageH], compress:true});
 
-  // Layout centrado para 50x25 (y funciona bien en tamaños similares)
-  const m = 1.4;        // margen general
-  const quiet = 1.6;    // quiet zone dentro del cuadro
+  // Layout para 50x25 horizontal
+  const m = 1.6;                // margen mínimo
+  const quiet = 1.6;            // “quiet zone” blanca
+  const nameY = 6.2;
+  const barcodeTop = 7.6;
 
-  const headerH = 6.2;  // espacio para nombre+precio
-  const bh = 13.5;      // altura caja código (chaparro)
-  const bw = pageW - (m * 2);
-
-  const contentH = headerH + bh;
-  const topStart = (pageH - contentH) / 2;
-
-  const nameY  = topStart + 3.2;
-  const priceY = topStart + 6.0;
-  const barcodeTop = topStart + headerH;
+  // Área barra grande
+  const barcodeH = pageH - barcodeTop - 1.2;
+  const barcodeW = pageW - (m*2) - (quiet*2);
 
   function safeText(s){ return String(s||"").replace(/\s+/g," ").trim(); }
-  function fitOneLine(doc, text, maxWidth, startSize=7.8, minSize=6.3){
+  function fitOneLine(doc, text, maxWidth, startSize=9.5, minSize=6.8){
     let s=startSize;
     doc.setFontSize(s);
     while(s>minSize && doc.getTextWidth(text)>maxWidth){ s-=0.2; doc.setFontSize(s); }
@@ -709,31 +699,41 @@ async function openPDF(){
     const name=safeText(it.name);
     const priceStr=money(it.price);
 
-    // Fondo blanco
+    // Fondo blanco completo
     doc.setFillColor(255,255,255);
     doc.rect(0,0,pageW,pageH,"F");
 
-    // Texto centrado
+    // Nombre + precio arriba (solo una línea)
     doc.setTextColor(0,0,0);
     doc.setFont("helvetica","bold");
 
-    const fitted = fitOneLine(doc, name, pageW - (m*2), 7.8, 6.3);
+    // nombre a la izquierda
+    const rightX = pageW - m;
+    doc.setFontSize(9.2);
+    const priceWtxt = doc.getTextWidth(priceStr);
+    const gap = 2.2;
+    const maxNameW = (rightX - priceWtxt - gap) - m;
+
+    const fitted = fitOneLine(doc, name, Math.max(10, maxNameW), 9.2, 6.8);
     doc.setFontSize(fitted.size);
-    doc.text(fitted.text || "—", pageW/2, nameY, { align:"center" });
+    doc.text(fitted.text || "—", m, nameY);
 
-    doc.setFontSize(7.6);
-    doc.text(priceStr, pageW/2, priceY, { align:"center" });
+    // precio a la derecha
+    doc.setFontSize(9.2);
+    doc.text(priceStr, rightX, nameY, {align:"right"});
 
-    // Caja barcode centrada
-    const bx = (pageW - bw) / 2;
+    // Quiet zone blanca + borde (mejora lectura)
+    const bx = m;
     const by = barcodeTop;
+    const bw = pageW - (m*2);
+    const bh = barcodeH;
 
     doc.setDrawColor(0,0,0);
     doc.setLineWidth(0.25);
     doc.setFillColor(255,255,255);
     doc.roundedRect(bx, by, bw, bh, 1.6, 1.6, "FD");
 
-    // Barcode grande dentro
+    // Código de barras grande dentro de la caja
     const img=barcodeDataURL(it.code);
     doc.addImage(img, "PNG", bx + quiet, by + quiet, bw - (quiet*2), bh - (quiet*2));
   }
