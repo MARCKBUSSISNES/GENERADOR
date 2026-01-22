@@ -46,7 +46,6 @@
     .brand h1{margin:0;font-size:18px;font-weight:1000;letter-spacing:.2px}
     .brand p{margin:2px 0 0;color:var(--muted);font-weight:850;font-size:13px}
 
-    /* LOGO REAL (LOGO1.png) */
     .logoImg{
       width:48px;height:48px;border-radius:14px;
       background:rgba(255,255,255,.06);
@@ -55,13 +54,7 @@
       overflow:hidden;
       display:flex;align-items:center;justify-content:center;
     }
-    .logoImg img{
-      width:100%;
-      height:100%;
-      object-fit:contain;       /* NO distorsiona */
-      padding:6px;
-      display:block;
-    }
+    .logoImg img{width:100%;height:100%;object-fit:contain;padding:6px;display:block;}
 
     .pill{
       display:inline-flex;gap:8px;align-items:center;
@@ -69,8 +62,7 @@
       border:1px solid rgba(43,124,255,.35);
       background:rgba(43,124,255,.10);
       font-weight:1000;color:#cfe4ff;
-      user-select:none;
-      white-space:nowrap;
+      user-select:none;white-space:nowrap;
     }
 
     .grid{display:grid;grid-template-columns: 1.05fr .95fr;gap:14px}
@@ -137,6 +129,7 @@
     tr:last-child td{border-bottom:none}
     td small{color:var(--muted);font-weight:900}
 
+    /* -------- Vista previa mejorada para lectura -------- */
     .previewWrap{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start;margin-top:10px}
     .labelPreview{
       background:#fff;color:#111;border-radius:14px;
@@ -147,8 +140,16 @@
     .labelPreview .line1{display:flex;justify-content:space-between;gap:10px;font-weight:1000}
     .labelPreview .name{font-size:15px;max-width:68%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .labelPreview .price{font-size:16px}
-    .labelPreview .code{font-size:11px;color:#333;font-weight:900;margin-top:3px}
-    .labelPreview svg{width:100%;height:46px;margin-top:6px}
+
+    /* Área blanca (quiet zone) + barras grandes */
+    .barcodeBox{
+      margin-top:8px;
+      background:#fff;
+      padding:6px;               /* quiet zone */
+      border:2px solid #000;     /* contraste */
+      border-radius:10px;
+    }
+    .labelPreview svg{width:100%;height:68px;display:block}
 
     .footer{margin-top:14px;color:rgba(255,255,255,.65);font-weight:900;font-size:12px;text-align:center}
     .footer b{color:#cfe4ff}
@@ -171,11 +172,8 @@
         radial-gradient(900px 650px at 10% 0%, rgba(43,124,255,.20), transparent 55%),
         radial-gradient(900px 650px at 90% 0%, rgba(29,211,176,.16), transparent 55%),
         rgba(0,0,0,.55);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:18px;
-      z-index:1000;
+      display:flex;align-items:center;justify-content:center;
+      padding:18px;z-index:1000;
     }
     .loginBox{
       width:min(560px, 100%);
@@ -246,9 +244,6 @@
     <div class="top">
       <div class="brand">
         <div class="logoImg" title="LOGO1 (solo en el sitio)">
-          <!-- IMPORTANTE:
-               - Si tu index.html está en la RAÍZ del repo, usa: ./LOGO1.png
-               - Si está en una carpeta (ej: /MTR-PLAZA/), pon la ruta relativa correcta -->
           <img id="siteLogo" src="./LOGO1.png" alt="LOGO1">
         </div>
         <div>
@@ -298,10 +293,9 @@
                 <div class="name" id="pvName">—</div>
                 <div class="price" id="pvPrice">Q0.00</div>
               </div>
-              <div class="code">SKU: <span id="pvCode">00000</span></div>
-              <svg id="pvBarcode"></svg>
-              <div style="margin-top:6px;font-size:9px;color:#444;font-weight:800;text-align:center">
-                MarckBusiness © 2025 • Todos los derechos reservados
+
+              <div class="barcodeBox">
+                <svg id="pvBarcode"></svg>
               </div>
             </div>
           </div>
@@ -327,27 +321,27 @@
             <input id="qty" type="number" min="1" value="1"/>
           </div>
 
-          <!-- NUEVO: tamaño -->
+          <!-- tamaño: 50x25 por defecto -->
           <div class="field">
             <label>Ancho etiqueta (mm)</label>
-            <input id="lblW" type="number" min="20" step="0.1" value="80"/>
+            <input id="lblW" type="number" min="20" step="0.1" value="50"/>
           </div>
 
           <div class="field">
             <label>Alto etiqueta (mm)</label>
-            <input id="lblH" type="number" min="20" step="0.1" value="50"/>
+            <input id="lblH" type="number" min="20" step="0.1" value="25"/>
           </div>
 
-          <!-- NUEVO: orientación -->
+          <!-- horizontal fijo (igual lo dejo por si algún día cambias) -->
           <div class="field full">
             <label>Orientación</label>
             <select id="lblOri">
-              <option value="AUTO">Automática (según ancho/alto)</option>
-              <option value="landscape">Horizontal</option>
+              <option value="landscape" selected>Horizontal</option>
               <option value="portrait">Vertical</option>
+              <option value="AUTO">Automática (según ancho/alto)</option>
             </select>
             <div class="muted" style="margin-top:6px">
-              Tip: 80×50 normalmente es <b>Horizontal</b>. 50×80 es <b>Vertical</b>.
+              Para 50×25 usa <b>Horizontal</b>.
             </div>
           </div>
 
@@ -391,9 +385,8 @@
 <script>
 /* ============================================================
    GENERADOR Etiquetas (IndexedDB)
-   + Tamaño y orientación PDF seleccionable
-   + LOGIN con código 363534 y botón cerrar sesión
-   + LOGO1.png solo en el sitio (NO en etiquetas / PDF)
+   AJUSTE: Etiquetas 50x25mm horizontales (solo: BARCODE + NOMBRE + PRECIO)
+   BARCODE más fuerte para pistola
 ============================================================ */
 
 const LOGIN_CODE = "363534";
@@ -421,9 +414,7 @@ function pad5(n){return String(n).padStart(5,"0");}
 function validateCode5(code){return /^\d{5}$/.test(code);}
 
 // ---------- Login ----------
-function isLoggedIn(){
-  return localStorage.getItem(LOGIN_KEY)==="1";
-}
+function isLoggedIn(){ return localStorage.getItem(LOGIN_KEY)==="1"; }
 function showLogin(){
   $("loginOverlay").style.display="flex";
   $("appWrap").style.display="none";
@@ -511,22 +502,36 @@ async function nextCode(){
   return pad5(n);
 }
 
+// ---------- BARCODE fuerte (para escáner) ----------
+function drawBarcodeToSVG(svgEl, code){
+  svgEl.innerHTML="";
+  if(!validateCode5(code)) return;
+
+  // más contraste y barras más "gordas"
+  // IMPORTANTÍSIMO: un poco de margen (quiet zone) ayuda a lectura
+  try{
+    JsBarcode(svgEl, code, {
+      format:"CODE128",
+      displayValue:false,
+      margin:0,
+      height:58,
+      width:2.6,     // <-- barras más anchas
+      background:"#ffffff",
+      lineColor:"#000000"
+    });
+  }catch(e){}
+}
+
 // ---------- Preview ----------
 function renderPreview(){
   const code=$("pCode").value.trim()||"00000";
   const name=$("pName").value.trim()||"—";
   const price=Number($("pPrice").value||0);
-  $("pvCode").textContent=code;
+
   $("pvName").textContent=name;
   $("pvPrice").textContent=money(price);
 
-  const svg=$("pvBarcode");
-  svg.innerHTML="";
-  if(validateCode5(code)){
-    try{
-      JsBarcode(svg,code,{format:"CODE128",displayValue:false,margin:0,height:40,width:2});
-    }catch(e){}
-  }
+  drawBarcodeToSVG($("pvBarcode"), code);
 }
 
 // ---------- Products ----------
@@ -612,25 +617,39 @@ async function addToQueue(){
 }
 function clearQueue(){ state.queue=[]; saveQueue(); renderQueue(); toast("Cola limpia"); }
 
-// ---------- Barcode (image for PDF) ----------
+// ---------- Barcode (PNG para PDF) ----------
 function barcodeDataURL(code){
   const canvas=document.createElement("canvas");
-  canvas.width=520; canvas.height=140;
-  JsBarcode(canvas,code,{format:"CODE128",displayValue:false,margin:0,height:95,width:2});
+
+  // Mayor resolución para que salga nítido
+  canvas.width=900;
+  canvas.height=320;
+
+  // Ojo: aquí igual lo hacemos "fuerte"
+  JsBarcode(canvas, code, {
+    format:"CODE128",
+    displayValue:false,
+    margin:0,
+    height:230,
+    width:6,                // <-- MUY importante para lectura
+    background:"#ffffff",
+    lineColor:"#000000"
+  });
+
   return canvas.toDataURL("image/png",1.0);
 }
 
-// ---------- PDF (tamaño/orientación seleccionable) ----------
+// ---------- PDF (50x25mm, horizontal, SOLO BARCODE+NOMBRE+PRECIO) ----------
 async function openPDF(){
   if(state.queue.length===0) return alert("Cola vacía.");
 
-  // leer config desde UI
-  let w = Number($("lblW")?.value || 80);
-  let h = Number($("lblH")?.value || 50);
-  if(!isFinite(w) || w < 20) w = 80;
-  if(!isFinite(h) || h < 20) h = 50;
+  // Forzar a 50x25 si el usuario cambia, igual se respeta lo que ponga.
+  let w = Number($("lblW")?.value || 50);
+  let h = Number($("lblH")?.value || 25);
+  if(!isFinite(w) || w < 20) w = 50;
+  if(!isFinite(h) || h < 20) h = 25;
 
-  let ori = $("lblOri")?.value || "AUTO";
+  let ori = $("lblOri")?.value || "landscape";
   if(ori === "AUTO"){
     ori = (w >= h) ? "landscape" : "portrait";
   }
@@ -644,18 +663,25 @@ async function openPDF(){
 
   const {jsPDF}=window.jspdf;
   const doc=new jsPDF({orientation: ori, unit:"mm", format:[pageW,pageH], compress:true});
-  const footer="MarckBusiness © 2025 • Todos los derechos reservados";
 
-  function fitOneLine(doc, text, maxWidth, startSize=15, minSize=9){
+  // Layout para 50x25 horizontal
+  const m = 1.6;                // margen mínimo
+  const quiet = 1.6;            // “quiet zone” blanca
+  const nameY = 6.2;
+  const barcodeTop = 7.6;
+
+  // Área barra grande
+  const barcodeH = pageH - barcodeTop - 1.2;
+  const barcodeW = pageW - (m*2) - (quiet*2);
+
+  function safeText(s){ return String(s||"").replace(/\s+/g," ").trim(); }
+  function fitOneLine(doc, text, maxWidth, startSize=9.5, minSize=6.8){
     let s=startSize;
     doc.setFontSize(s);
-    while(s>minSize && doc.getTextWidth(text)>maxWidth){ s-=0.5; doc.setFontSize(s); }
+    while(s>minSize && doc.getTextWidth(text)>maxWidth){ s-=0.2; doc.setFontSize(s); }
     if(doc.getTextWidth(text)<=maxWidth) return {size:s, text};
-
     doc.setFontSize(minSize);
     const ell="…";
-    if(doc.getTextWidth(ell)>maxWidth) return {size:minSize, text:""};
-
     let lo=0, hi=text.length;
     while(lo<hi){
       const mid=Math.ceil((lo+hi)/2);
@@ -665,60 +691,56 @@ async function openPDF(){
     }
     return {size:minSize, text:text.slice(0,lo)+ell};
   }
-  function safeText(s){ return String(s||"").replace(/\s+/g," ").trim(); }
-
-  // layout dinámico
-  const m = 3;
-  const topY = 9;
-  const skuY = 14;
-  const barcodeY = 16;
-  const footerY = pageH - 2;
-
-  const barcodeH = Math.max(12, Math.min(26, pageH - (barcodeY + 6)));
-  const barcodeW = Math.max(20, pageW - (m*2));
 
   for(let i=0;i<labels.length;i++){
     if(i>0) doc.addPage([pageW,pageH], ori);
-    const it=labels[i];
 
-    doc.setTextColor(10,10,10);
+    const it=labels[i];
     const name=safeText(it.name);
     const priceStr=money(it.price);
 
+    // Fondo blanco completo
+    doc.setFillColor(255,255,255);
+    doc.rect(0,0,pageW,pageH,"F");
+
+    // Nombre + precio arriba (solo una línea)
+    doc.setTextColor(0,0,0);
     doc.setFont("helvetica","bold");
-    doc.setFontSize(16);
 
-    const priceW = doc.getTextWidth(priceStr);
-    const gap = 3;
-    const leftX = m;
+    // nombre a la izquierda
     const rightX = pageW - m;
-    const maxNameW = (rightX - priceW - gap) - leftX;
+    doc.setFontSize(9.2);
+    const priceWtxt = doc.getTextWidth(priceStr);
+    const gap = 2.2;
+    const maxNameW = (rightX - priceWtxt - gap) - m;
 
-    const fitted = fitOneLine(doc, name, Math.max(10, maxNameW), 15, 9);
+    const fitted = fitOneLine(doc, name, Math.max(10, maxNameW), 9.2, 6.8);
     doc.setFontSize(fitted.size);
-    doc.text(fitted.text || "—", leftX, topY);
+    doc.text(fitted.text || "—", m, nameY);
 
-    // precio (si no cabe, reduce)
-    let ps=16;
-    doc.setFontSize(ps);
-    while(ps>11 && doc.getTextWidth(priceStr)>(pageW - (m*2))){ ps-=0.5; doc.setFontSize(ps); }
-    doc.text(priceStr, rightX, topY, {align:"right"});
+    // precio a la derecha
+    doc.setFontSize(9.2);
+    doc.text(priceStr, rightX, nameY, {align:"right"});
 
-    doc.setFont("helvetica","normal");
-    doc.setFontSize(9);
-    doc.text("SKU: "+it.code, m, skuY);
+    // Quiet zone blanca + borde (mejora lectura)
+    const bx = m;
+    const by = barcodeTop;
+    const bw = pageW - (m*2);
+    const bh = barcodeH;
 
+    doc.setDrawColor(0,0,0);
+    doc.setLineWidth(0.25);
+    doc.setFillColor(255,255,255);
+    doc.roundedRect(bx, by, bw, bh, 1.6, 1.6, "FD");
+
+    // Código de barras grande dentro de la caja
     const img=barcodeDataURL(it.code);
-    doc.addImage(img,"PNG", m, barcodeY, barcodeW, barcodeH);
-
-    doc.setFontSize(7.2);
-    doc.setTextColor(40,40,40);
-    doc.text(footer, pageW/2, footerY, {align:"center"});
+    doc.addImage(img, "PNG", bx + quiet, by + quiet, bw - (quiet*2), bh - (quiet*2));
   }
 
   const blobUrl=doc.output("bloburl");
   window.open(blobUrl,"_blank");
-  toast("PDF");
+  toast("PDF listo");
 }
 
 // ---------- Backup ----------
@@ -845,11 +867,9 @@ function wire(){
 
 // ---------- Init ----------
 (async function init(){
-  // Mostrar login o app
   if(isLoggedIn()) showApp();
   else showLogin();
 
-  // DB init
   db=await openDB();
 
   loadQueue();
