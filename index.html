@@ -273,6 +273,13 @@
             <label>Precio (Q)</label>
             <input id="pPrice" type="number" min="0" step="0.01" placeholder="Ej: 129.00"/>
           </div>
+
+          <!-- STOCK (nuevo) -->
+          <div class="field">
+            <label>Stock</label>
+            <input id="pStock" type="number" min="0" step="1" value="0" placeholder="Ej: 10"/>
+          </div>
+
           <div class="field full">
             <label>Nombre</label>
             <input id="pName" placeholder="Ej: Camisa Oxford"/>
@@ -407,7 +414,7 @@ function toast(msg){
   toast._t=setTimeout(()=>t.classList.remove("show"),2000);
 }
 
-function money(n){return "Q"+(Number(n||0)).toFixed(2);}
+function money(n){return "Q"+(Number(n||0)).toFixed(2); }
 function norm(s){return String(s||"").trim().toLowerCase().replace(/\s+/g," ");}
 
 function pad5(n){return String(n).padStart(5,"0");}
@@ -507,15 +514,13 @@ function drawBarcodeToSVG(svgEl, code){
   svgEl.innerHTML="";
   if(!validateCode5(code)) return;
 
-  // más contraste y barras más "gordas"
-  // IMPORTANTÍSIMO: un poco de margen (quiet zone) ayuda a lectura
   try{
     JsBarcode(svgEl, code, {
       format:"CODE128",
       displayValue:false,
       margin:0,
       height:58,
-      width:2.6,     // <-- barras más anchas
+      width:2.6,
       background:"#ffffff",
       lineColor:"#000000"
     });
@@ -540,17 +545,24 @@ async function saveProduct(){
   const name=$("pName").value.trim();
   const price=Number($("pPrice").value);
 
+  // STOCK (nuevo): opcional, default 0, no altera nada más
+  const stock = Math.max(0, Math.floor(Number($("pStock")?.value || 0)));
+
   if(!validateCode5(code)) return alert("SKU inválido.");
   if(!name) return alert("Nombre requerido.");
   if(isNaN(price)||price<0) return alert("Precio inválido.");
 
-  const p={code,name,price:Number(price.toFixed(2)),nameKey:norm(name),updatedAt:Date.now()};
+  // STOCK (nuevo) guardado en el producto
+  const p={code,name,price:Number(price.toFixed(2)),stock, nameKey:norm(name),updatedAt:Date.now()};
   await idbPut("products",p);
 
   await refreshPicker();
   $("pCode").value=await nextCode();
   $("pName").value="";
   $("pPrice").value="";
+  // STOCK (nuevo) reseteo del campo
+  if($("pStock")) $("pStock").value="0";
+
   renderPreview();
   toast("Guardado");
 }
@@ -620,18 +632,15 @@ function clearQueue(){ state.queue=[]; saveQueue(); renderQueue(); toast("Cola l
 // ---------- Barcode (PNG para PDF) ----------
 function barcodeDataURL(code){
   const canvas=document.createElement("canvas");
-
-  // Mayor resolución para que salga nítido
   canvas.width=900;
   canvas.height=320;
 
-  // Ojo: aquí igual lo hacemos "fuerte"
   JsBarcode(canvas, code, {
     format:"CODE128",
     displayValue:false,
     margin:0,
     height:230,
-    width:6,                // <-- MUY importante para lectura
+    width:6,
     background:"#ffffff",
     lineColor:"#000000"
   });
@@ -643,7 +652,6 @@ function barcodeDataURL(code){
 async function openPDF(){
   if(state.queue.length===0) return alert("Cola vacía.");
 
-  // Forzar a 50x25 si el usuario cambia, igual se respeta lo que ponga.
   let w = Number($("lblW")?.value || 50);
   let h = Number($("lblH")?.value || 25);
   if(!isFinite(w) || w < 20) w = 50;
@@ -664,13 +672,11 @@ async function openPDF(){
   const {jsPDF}=window.jspdf;
   const doc=new jsPDF({orientation: ori, unit:"mm", format:[pageW,pageH], compress:true});
 
-  // Layout para 50x25 horizontal
-  const m = 1.6;                // margen mínimo
-  const quiet = 1.6;            // “quiet zone” blanca
+  const m = 1.6;
+  const quiet = 1.6;
   const nameY = 6.2;
   const barcodeTop = 7.6;
 
-  // Área barra grande
   const barcodeH = pageH - barcodeTop - 1.2;
   const barcodeW = pageW - (m*2) - (quiet*2);
 
@@ -699,15 +705,12 @@ async function openPDF(){
     const name=safeText(it.name);
     const priceStr=money(it.price);
 
-    // Fondo blanco completo
     doc.setFillColor(255,255,255);
     doc.rect(0,0,pageW,pageH,"F");
 
-    // Nombre + precio arriba (solo una línea)
     doc.setTextColor(0,0,0);
     doc.setFont("helvetica","bold");
 
-    // nombre a la izquierda
     const rightX = pageW - m;
     doc.setFontSize(9.2);
     const priceWtxt = doc.getTextWidth(priceStr);
@@ -718,11 +721,9 @@ async function openPDF(){
     doc.setFontSize(fitted.size);
     doc.text(fitted.text || "—", m, nameY);
 
-    // precio a la derecha
     doc.setFontSize(9.2);
     doc.text(priceStr, rightX, nameY, {align:"right"});
 
-    // Quiet zone blanca + borde (mejora lectura)
     const bx = m;
     const by = barcodeTop;
     const bw = pageW - (m*2);
@@ -733,7 +734,6 @@ async function openPDF(){
     doc.setFillColor(255,255,255);
     doc.roundedRect(bx, by, bw, bh, 1.6, 1.6, "FD");
 
-    // Código de barras grande dentro de la caja
     const img=barcodeDataURL(it.code);
     doc.addImage(img, "PNG", bx + quiet, by + quiet, bw - (quiet*2), bh - (quiet*2));
   }
@@ -747,7 +747,15 @@ async function openPDF(){
 async function exportJSON(){
   const products=await idbAll("products");
   const meta=await idbAll("meta");
-  const data={exportedAt:new Date().toISOString(),products,meta,queue:state.queue};
+
+  // STOCK (nuevo): en la exportación garantizamos stock numérico (0 si no existe),
+  // sin afectar nada del funcionamiento actual.
+  const productsOut = (products||[]).map(p => ({
+    ...p,
+    stock: Math.max(0, Math.floor(Number(p?.stock ?? 0)))
+  }));
+
+  const data={exportedAt:new Date().toISOString(),products:productsOut,meta,queue:state.queue};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
   const a=document.createElement("a");
   a.href=URL.createObjectURL(blob);
@@ -767,8 +775,14 @@ async function importExcelFile(file){
     const name=String(r.NOMBRE ?? r.nombre ?? r.PRODUCTO ?? r.producto ?? "").trim();
     const priceRaw=r.PRECIO ?? r.precio ?? r.PRICE ?? r.price ?? "";
     const price=Number(String(priceRaw).replace(/[^0-9.]/g,""));
+
+    // STOCK (nuevo): columna opcional
+    const stockRaw = r.STOCK ?? r.stock ?? r.EXISTENCIA ?? r.existencia ?? "";
+    const stock = Math.max(0, Math.floor(Number(String(stockRaw).replace(/[^0-9]/g,"")) || 0));
+
     if(!validateCode5(sku)||!name||isNaN(price)){bad++;continue;}
-    await idbPut("products",{code:sku,name,price:Number(price.toFixed(2)),nameKey:norm(name),updatedAt:Date.now()});
+
+    await idbPut("products",{code:sku,name,price:Number(price.toFixed(2)),stock, nameKey:norm(name),updatedAt:Date.now()});
     ok++;
   }
   await refreshPicker();
@@ -794,6 +808,8 @@ function wire(){
     $("pCode").value=await nextCode();
     $("pName").value="";
     $("pPrice").value="";
+    // STOCK (nuevo)
+    if($("pStock")) $("pStock").value="0";
     renderPreview();
   });
   $("btnNext").addEventListener("click",async()=>{
@@ -852,6 +868,8 @@ function wire(){
       $("pCode").value=await nextCode();
       $("pName").value="";
       $("pPrice").value="";
+      // STOCK (nuevo)
+      if($("pStock")) $("pStock").value="0";
       renderPreview();
     }
   });
@@ -877,6 +895,9 @@ function wire(){
 
   const meta=await idbGet("meta","next");
   $("pCode").value=meta?.value?pad5(meta.value):pad5(1);
+
+  // STOCK (nuevo): asegura valor inicial visible sin afectar nada
+  if($("pStock") && ($("pStock").value==="" || $("pStock").value==null)) $("pStock").value="0";
 
   await refreshPicker();
   renderPreview();
