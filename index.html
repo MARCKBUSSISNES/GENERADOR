@@ -116,12 +116,28 @@
       background: linear-gradient(90deg, var(--accent), var(--accent2));
       box-shadow: 0 14px 30px rgba(43,124,255,.20);
       transition: transform .15s ease, filter .15s ease;
+      text-decoration:none; /* para <a class="btn"> */
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
     }
     .btn:hover{transform:translateY(-1px);filter:saturate(1.05)}
     .btn:active{transform:translateY(0)}
     .btn.secondary{background:#0b1628;border:1px solid var(--border);box-shadow:none;color:var(--text)}
     .btn.danger{background:linear-gradient(90deg,#ef4444,#b91c1c)}
     .btn.small{padding:9px 12px;border-radius:12px}
+
+    /* ========= BOTÓN ROSADO (NUEVO) ========= */
+    .btn-pink{
+      background: linear-gradient(90deg, #ff4fb7, #fb7185);
+      box-shadow: 0 14px 30px rgba(255,79,183,.35);
+      color:#fff;
+    }
+    .btn-pink:hover{
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+    }
 
     table{width:100%;border-collapse:collapse;margin-top:12px;overflow:hidden;border-radius:14px;border:1px solid var(--border)}
     th,td{padding:10px 10px;border-bottom:1px solid var(--border);text-align:left;font-weight:900;font-size:13px;vertical-align:top}
@@ -254,6 +270,12 @@
 
       <div class="topRightActions">
         <div class="pill">PAGO AL DIA 👍</div>
+
+        <!-- BOTÓN ROSADO (NUEVO) -->
+        <a class="btn btn-pink" href="https://marckbussisnes.github.io/MTR-PLAZA/" target="_blank" rel="noopener">
+          ABRIR COBROS
+        </a>
+
         <button class="btn secondary" id="btnLogout" type="button">Cerrar sesión</button>
       </div>
     </div>
